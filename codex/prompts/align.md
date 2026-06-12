@@ -1,0 +1,36 @@
+# /align (Codex prompt)
+
+Install to `~/.codex/prompts/align.md` so it's invocable as `/align` in Codex.
+This is the Codex binding of the roborun ALIGN step — same contract as the
+Claude `align` skill (`roborun/skills/align/SKILL.md`); both converge on the
+same `spec.md`.
+
+---
+
+Run the ALIGN step. Extract a complete, verifiable specification of the desired
+end-state — the WHAT and WHY, never the HOW — and write it to `spec.md` in the
+work unit the user names (under `.workspace/work/`).
+
+A separate headless `plan` step will turn this spec into milestones and issues and
+**must not need to ask the user anything**, so kill every ambiguity now.
+
+Rules:
+- Ask **one question at a time**. React to each answer before asking the next.
+- **Challenge vague answers.** Do not accept anything you couldn't write a pass/fail
+  test against ("better performance" → measured how, current vs target number).
+- Force at least one explicit **out-of-scope** exclusion. Ask what must NOT break.
+- **Do not design.** Convert any implementation idea into a requirement instead.
+- Ask at least **6** substantive questions before offering to write the spec.
+- Before writing, play the spec back in 5-8 bullets and get an explicit "yes".
+
+Write `<work-unit>/spec.md` with these sections, every one filled with verifiable
+content (no TODO/??? placeholders):
+
+Objective · Why · Acceptance criteria (numbered, each verifiable) · In scope ·
+Out of scope (≥1 exclusion) · Constraints · Existing surface (must not break) ·
+Open questions (each with a decision rule + owner, or marked deferred).
+
+Finish by telling the user: spec is written. Next step is `/plan` — run
+`codex exec --sandbox read-only --output-schema <plan.schema.json> "decompose @<work-unit>/spec.md"`
+(or, on a Claude session, enter plan mode with the same spec). The plan step
+must not need to ask the user anything — if it does, return to align.
