@@ -61,8 +61,15 @@ asymmetry into per-host bindings rather than pretending parity.
       `0.1.0 — Dividend modeling` + 4 issues materialized.
 - [x] Step 4a: Issues #1 & #2 implemented on Claude (data model + cash
       credit), 13 tests green, PR #5 open. Handoff to Codex for #3.
-- [ ] Step 4b: Codex implements #3 (reinvest mode), then #4 (docs).
-- [ ] Step 5: ship + handoff → first refinement round
+- [x] Step 4b: Codex implemented #3 (reinvest mode, commit `a58eafe`,
+      17 tests). Driven headlessly from Claude via `codex exec`; the
+      handoff digest at `094709.md` was sufficient cold-start context,
+      no clarifying questions raised. Claude then took #4 (docs +
+      LIMITATIONS).
+- [x] Step 5: shipped. PR #5 squash-merged as `55ad3bc` to
+      `roborun-dogfood-backtest/main`; all 4 issues auto-closed by the
+      merge; milestone `0.1.0 — Dividend modeling` complete. First
+      refinement round = the new backlog items below (#7–#9).
 
 ## Roborun backlog (from dogfood frictions)
 
@@ -91,11 +98,68 @@ asymmetry into per-host bindings rather than pretending parity.
    keyword closing only on merge to the repo's default branch. Implication
    for the outer-objective acceptance ("every implementation step traces
    to a closed GH issue"): closure happens at PR merge, not at step
-   completion. `/plan-issues` SKILL.md and a future `/next` skill should
-   say this explicitly. Consider: should `/next` add the closing footer
-   to the commit (current convention) OR also link the issue to the PR
-   so GitHub shows the closes-on-merge relationship in the UI? `gh issue
-   develop` does this; `gh pr create` doesn't auto-link beyond keyword.
+   completion. `/plan-issues` SKILL.md and a future `/next-issue` skill
+   should say this explicitly. Consider: should `/next-issue` add the
+   closing footer to the commit (current convention) OR also link the
+   issue to the PR so GitHub shows the closes-on-merge relationship in
+   the UI? `gh issue develop` does this; `gh pr create` doesn't auto-link
+   beyond keyword.
+7. **Codex headless push blocked by GitHub connector approval gate**
+   (FIXED 2026-06-15 — surfaced Step 4b).
+   *Root cause* (verified in the Step 4b JSON log): when
+   `plugins."github@openai-curated"` is enabled in `~/.codex/config.toml`,
+   Codex prefers the OpenAI **`codex_apps` MCP server**
+   (`github_create_blob`, `github_create_pull_request`, …) over shell
+   `git push` for remote writes. Those connector tools are gated by
+   per-tool `approval_mode` (`auto|prompt|approve`), which is
+   independent of `approval_policy`. Headless `codex exec` cannot
+   satisfy "approve", so the call comes back as
+   *"user cancelled MCP tool call"*. Shell `git push` is never
+   attempted unless the agent is told to.
+   *What didn't work*:
+   - `-c 'plugins."github@openai-curated".enabled=false'` — silently
+     ignored; connector stays active.
+   - `-c '...approval_mode="never"'` — schema rejects (only
+     `auto|prompt|approve` are valid).
+   - `-c '...approval_mode="auto"'` on individual tools — still cancels
+     (the gate isn't only at the named-tool level).
+   *What works*: tell Codex in the prompt to use shell `git`/`gh` only
+   and to avoid `codex_apps` connector tools. Verified live: with the
+   instruction, Codex shells `git --version` etc. without trying the
+   connector. The `/next-issue` Codex prompt now carries this
+   instruction; orchestrator prompts driving `codex exec` should
+   include the same paragraph.
+   *Open follow-up*: there is no config-only way to disable the
+   connector for one invocation. If we end up driving Codex from a
+   harness, the connector-avoidance instruction must be in every
+   invocation's prompt.
+8. **Shared `.workspace/` is what makes host-swap work — no
+   `--execute-as <host>` verb needed.** The session originally framed
+   the gap as "no verb to launch the other host." That's the wrong
+   level of abstraction. The actual primitive that makes a host swap
+   reproducible is **shared durable storage**: `.workspace/work/*`,
+   `.workspace/transitions/*`, `spec.md`, `plan.md`, the handoff digest
+   — both Claude and Codex read these natively. As long as a session
+   on either host can call `/continue` and find the same state, the
+   "swap" is a no-op of agent identity. So roborun should:
+   - **keep** the `handoff` + `continue` verbs as the cross-host
+     contract, and harden them around `.workspace/` paths;
+   - **not** add an `execute-as` verb — the active host (whichever
+     CLI the user is in) is always the right driver;
+   - **document** in `handoff` that any host can pick up, and add a
+     short note about `codex exec` / `claude -p` as an *optional*
+     headless invocation, not as a workflow primitive.
+9. **"Fail-loud means fail-atomic" should be in the handoff/skill
+   template.** During the Step 4b host-swap probe, Codex independently
+   wrote a two-pass `apply_dividends` (validate all `due` events
+   first, then mutate cash + ledger) so a missing-price ValueError
+   leaves the backtest untouched. Claude's version mutated state then
+   raised mid-loop, leaving a half-applied state. The spec didn't
+   require atomicity but it's clearly the better contract under
+   fail-loud. Worth a one-liner in `align`'s contract-writing guidance
+   and in `next-issue`'s implementation guidance: when an error path
+   raises, no prior step in the same logical operation should be
+   half-applied.
 
 ## License
 
