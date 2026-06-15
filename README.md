@@ -57,8 +57,11 @@ asymmetry into per-host bindings rather than pretending parity.
       modeling (synthesized rather than interrogated — see backlog #1).
 - [x] Step 2: dogfood native plan mode → `plan.md`. Bugs surfaced (#2, #3),
       both shipped fixes in same session.
-- [ ] Step 3: build `/plan-issues` skill, run it on the dogfood plan
-- [ ] Step 4: execute issue by issue (host swap + session boundary planned)
+- [x] Step 3: built `/plan-issues` skill, ran on dogfood plan — milestone
+      `0.1.0 — Dividend modeling` + 4 issues materialized.
+- [x] Step 4a: Issues #1 & #2 implemented on Claude (data model + cash
+      credit), 13 tests green, PR #5 open. Handoff to Codex for #3.
+- [ ] Step 4b: Codex implements #3 (reinvest mode), then #4 (docs).
 - [ ] Step 5: ship + handoff → first refinement round
 
 ## Roborun backlog (from dogfood frictions)
@@ -75,12 +78,24 @@ asymmetry into per-host bindings rather than pretending parity.
    commit `dbeac71`, intelligence commit `7c69dad`). One audit sweep found
    four stale `~/agents/plugins/` references across three files; all moved
    to `~/agents/coding/plugins/`. Worth re-running the audit periodically.
-4. **`/plan-issues` skill does not exist yet.** Needs to read `plan.md`,
-   parse milestone + issue headings, dry-run `gh issue create` per item.
-   Up next.
+4. **`/plan-issues` skill** (SHIPPED 2026-06-15, roborun commit `943d705`,
+   plugins commit `65824a0`). Reads `plan.md`, parses `### Milestone:` +
+   `**Issue N —**` blocks, dry-run by default, `--apply` creates
+   milestone + issues; idempotent by title match.
 5. **Cross-platform self-test** — once Codex sessions are reachable from
    this workflow, verify that the parallel handoff/continue/plan-issues
    prompts behave equivalently. Track payload shape on both sides.
+6. **`Closes #N` only fires on merge to default branch.** Surfaced during
+   Step 4a: commits on `dogfood/dividend-modeling` carrying `Closes #1`
+   and `Closes #2` did NOT close the issues at push time. GitHub fires
+   keyword closing only on merge to the repo's default branch. Implication
+   for the outer-objective acceptance ("every implementation step traces
+   to a closed GH issue"): closure happens at PR merge, not at step
+   completion. `/plan-issues` SKILL.md and a future `/next` skill should
+   say this explicitly. Consider: should `/next` add the closing footer
+   to the commit (current convention) OR also link the issue to the PR
+   so GitHub shows the closes-on-merge relationship in the UI? `gh issue
+   develop` does this; `gh pr create` doesn't auto-link beyond keyword.
 
 ## License
 
