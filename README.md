@@ -51,13 +51,36 @@ asymmetry into per-host bindings rather than pretending parity.
 
 ## Status
 
-- [ ] Step 0: port `align` skill from relay → workflow plugin (Claude binding)
-- [ ] Step 0: port `align.codex.md` → codex prompts (Codex binding)
-- [ ] Step 1: dogfood `/align` on roborun itself → `spec.md`
-- [ ] Step 2: dogfood native plan mode → `plan.md` (auto-captured)
-- [ ] Step 3: build `/plan-issues` while running it on our own plan
-- [ ] Step 4: execute issue by issue
+- [x] Step 0: port `align` skill → workflow plugin (Claude) + `~/.codex/prompts/` (Codex)
+- [x] Step 1: dogfood `/align` on synthetic spec — created
+      `stefan-jansen/roborun-dogfood-backtest`, wrote `spec.md` for dividend
+      modeling (synthesized rather than interrogated — see backlog #1).
+- [x] Step 2: dogfood native plan mode → `plan.md`. Bugs surfaced (#2, #3),
+      both shipped fixes in same session.
+- [ ] Step 3: build `/plan-issues` skill, run it on the dogfood plan
+- [ ] Step 4: execute issue by issue (host swap + session boundary planned)
 - [ ] Step 5: ship + handoff → first refinement round
+
+## Roborun backlog (from dogfood frictions)
+
+1. **`/align` input contract is wrong.** Cold "game of 20 questions" is
+   impractical; the realistic input shape is a brief/document/RFC. Revise
+   `SKILL.md` to accept `/align @brief.md` and fall through to interrogation
+   only when invoked without one.
+2. **Capture-plan hook payload-shape compatibility** (FIXED 2026-06-15,
+   plugins commit `b017d27`). Hook now reads `tool_response.filePath` when
+   `.plan` is empty; accepts `ROBORUN_WORK_UNIT` override; debug-mode
+   payload logging is the v0 [API-drift detector](docs/api-drift-detection.md).
+3. **Stale plugin paths in project settings** (FIXED 2026-06-15, factory
+   commit `dbeac71`, intelligence commit `7c69dad`). One audit sweep found
+   four stale `~/agents/plugins/` references across three files; all moved
+   to `~/agents/coding/plugins/`. Worth re-running the audit periodically.
+4. **`/plan-issues` skill does not exist yet.** Needs to read `plan.md`,
+   parse milestone + issue headings, dry-run `gh issue create` per item.
+   Up next.
+5. **Cross-platform self-test** — once Codex sessions are reachable from
+   this workflow, verify that the parallel handoff/continue/plan-issues
+   prompts behave equivalently. Track payload shape on both sides.
 
 ## License
 
