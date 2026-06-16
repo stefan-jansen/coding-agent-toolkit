@@ -70,6 +70,17 @@ asymmetry into per-host bindings rather than pretending parity.
       `roborun-dogfood-backtest/main`; all 4 issues auto-closed by the
       merge; milestone `0.1.0 — Dividend modeling` complete. First
       refinement round = the new backlog items below (#7–#9).
+- [x] Step 6: `/ship` skill shipped. Canonical at
+      `skills/ship/SKILL.md`; Codex prompt at `codex/prompts/ship.md`;
+      plugin port at `~/agents/coding/plugins/workflow/skills/ship/`.
+      Verifies closing-footer coverage per milestone issue, marks PR
+      ready if draft, squash-merges with branch deletion (preserves all
+      `Closes #N` footers in the squash body so GitHub auto-closes), and
+      closes the milestone explicitly (GitHub doesn't auto-close
+      milestones). Closes the verb gap from the 2026-06-15 handoff —
+      align → plan → plan-issues → next-issue → ship is now end-to-end
+      teachable. Live re-verification pending on a fresh dogfood
+      milestone (backlog #10).
 
 ## Roborun backlog (from dogfood frictions)
 
@@ -159,7 +170,19 @@ asymmetry into per-host bindings rather than pretending parity.
    fail-loud. Worth a one-liner in `align`'s contract-writing guidance
    and in `next-issue`'s implementation guidance: when an error path
    raises, no prior step in the same logical operation should be
-   half-applied.
+   half-applied. (Partially landed in `/next-issue` SKILL.md §
+   "Implementation contract" 2026-06-15; still pending in `/align`.)
+10. **`/ship` live re-verification.** Skill shipped Step 6 but only
+    structurally tested. Open a fresh dogfood milestone
+    (e.g. `0.2.0 — <small scope>`) on
+    `stefan-jansen/roborun-dogfood-backtest`, drive one or two
+    `/next-issue` runs, then `/ship`. Confirm: closing-footer
+    coverage gate fires correctly when an issue is missing a
+    footer, the squash body preserves footers so GitHub auto-closes,
+    `gh api PATCH .../milestones/<N>` closes the milestone, and the
+    transition entry lands. Same probe doubles as backlog #7 (Codex
+    headless push) re-verification if at least one of the
+    `/next-issue` runs is driven via `codex exec`.
 
 ## License
 
