@@ -116,7 +116,11 @@ asymmetry into per-host bindings rather than pretending parity.
    the UI? `gh issue develop` does this; `gh pr create` doesn't auto-link
    beyond keyword.
 7. **Codex headless push blocked by GitHub connector approval gate**
-   (FIXED 2026-06-15 — surfaced Step 4b).
+   (FIXED 2026-06-15 — surfaced Step 4b; LIVE-VERIFIED 2026-06-16 on
+   `roborun-dogfood-backtest` 0.2.0 #6 driven via `codex exec` — the
+   connector-avoidance paragraph in `/next-issue` carried through, Codex
+   shelled `git push` + `gh pr create` end-to-end without the per-tool
+   approval gate firing).
    *Root cause* (verified in the Step 4b JSON log): when
    `plugins."github@openai-curated"` is enabled in `~/.codex/config.toml`,
    Codex prefers the OpenAI **`codex_apps` MCP server**
@@ -172,17 +176,32 @@ asymmetry into per-host bindings rather than pretending parity.
    raises, no prior step in the same logical operation should be
    half-applied. (Partially landed in `/next-issue` SKILL.md §
    "Implementation contract" 2026-06-15; still pending in `/align`.)
-10. **`/ship` live re-verification.** Skill shipped Step 6 but only
-    structurally tested. Open a fresh dogfood milestone
-    (e.g. `0.2.0 — <small scope>`) on
-    `stefan-jansen/roborun-dogfood-backtest`, drive one or two
-    `/next-issue` runs, then `/ship`. Confirm: closing-footer
-    coverage gate fires correctly when an issue is missing a
-    footer, the squash body preserves footers so GitHub auto-closes,
-    `gh api PATCH .../milestones/<N>` closes the milestone, and the
-    transition entry lands. Same probe doubles as backlog #7 (Codex
-    headless push) re-verification if at least one of the
-    `/next-issue` runs is driven via `codex exec`.
+10. **`/ship` live re-verification** (FIXED 2026-06-16 on
+    `roborun-dogfood-backtest` 0.2.0). PR #8 squash-merged as
+    `c66af9f`; both `Closes #N` footers preserved in the squash body,
+    GitHub auto-closed #6 and #7; milestone closed via
+    `gh api PATCH .../milestones/2` (as designed — GitHub doesn't
+    auto-close milestones). All readiness gates fired correctly
+    (closing-footer coverage, mergeable=CLEAN, no-checks-configured
+    skip). Note: milestone `closed_issues` counter includes the PR
+    itself; the per-issue list is the load-bearing check, not the
+    counter.
+11. **`gh pr edit --body[-file]` fails on `roborun-dogfood-backtest`**
+    with a GraphQL "Projects (classic) is being deprecated" warning —
+    the body is silently NOT updated, no error code returned.
+    Reproduces on both `gh pr edit --body "..."` and `gh pr edit
+    --body-file -`. Workaround that works:
+    `gh api -X PATCH /repos/{owner}/{repo}/pulls/{N} -f body=...`.
+    `/next-issue`'s "Push + PR" step (`gh pr edit ... --body-file -`
+    to tick the box) and `/ship`'s pre-merge body-update step should
+    fall back to the REST path when the GraphQL warning fires, OR
+    just use REST unconditionally. Surfaced during the 0.2.0 dogfood
+    ship.
+12. **Codex memory still references `git safe-commit`** (low priority).
+    Codex's run on 0.2.0 #6 noted "git safe-commit was unavailable,
+    used fallback git commit". The wrapper is deprecated per user
+    CLAUDE.md but Codex's user-level memory still expects it. One-line
+    fix in Codex's user-level instructions.
 
 ## License
 
