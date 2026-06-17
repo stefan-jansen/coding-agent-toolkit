@@ -81,6 +81,33 @@ asymmetry into per-host bindings rather than pretending parity.
       align → plan → plan-issues → next-issue → ship is now end-to-end
       teachable. Live re-verification pending on a fresh dogfood
       milestone (backlog #10).
+- [x] Step 7: `/handoff` + `/continue` skills shipped — the cross-host
+      primitives. Canonical at `skills/handoff/SKILL.md` and
+      `skills/continue/SKILL.md`; Codex prompts at
+      `codex/prompts/{handoff,continue}.md` (symlinked into
+      `~/.codex/prompts/`); plugin ports at
+      `~/agents/coding/plugins/workflow/skills/{handoff,continue}/`.
+      `/handoff` writes a structured digest under
+      `.workspace/transitions/YYYY-MM-DD/HHMMSS.md` with a load-bearing
+      read-only verification snapshot (commands + expected-value
+      comments); `/continue` reads it, runs the snapshot, reports drift,
+      and surfaces the suggested next steps without auto-executing.
+      Per backlog #8, the cross-host primitive is the shared
+      `.workspace/` storage, NOT an `execute-as-host` verb — both
+      Claude and Codex sessions can produce and consume these files
+      identically. All 7 roborun verbs (align, plan, plan-issues,
+      next-issue, ship, handoff, continue) now exist as
+      canonical+plugin+Codex bindings. Live-test pending.
+- [x] Step 8: 0.2.0 dogfood shipped on
+      `stefan-jansen/roborun-dogfood-backtest` (2026-06-16). PR #8
+      squash-merged as `c66af9f`; milestone closed via
+      `gh api PATCH`. Codex driver on #6 (short-side debit
+      implementation) live-verified backlog #7's connector-avoidance
+      prompt — Codex shelled `git push` + `gh pr create` end-to-end
+      without the per-tool approval gate. Claude driver on #7 (docs).
+      `/ship` live-verified (backlog #10). Surfaced two new backlog
+      items: #11 (`gh pr edit --body` silently fails on this repo)
+      and #12 (Codex memory still expects `git safe-commit`).
 
 ## Roborun backlog (from dogfood frictions)
 
