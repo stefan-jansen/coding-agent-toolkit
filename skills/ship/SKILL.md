@@ -1,6 +1,6 @@
 ---
 name: ship
-description: This skill should be used after all issues in a milestone have commits on the milestone's PR branch and the user asks to "ship the milestone", "merge the PR", "close out the milestone", or runs `/ship`. Verifies every milestone issue has a closing-footer commit on the PR branch, marks the PR ready if draft, squash-merges with branch deletion, verifies all milestone issues auto-closed, closes the milestone, and writes a transition entry. Host-neutral: same contract on Claude and Codex.
+description: This skill should be used after all issues in a milestone have commits on the milestone's PR branch and the user asks to "ship the milestone", "merge the PR", "close out the milestone", or runs `/ship`. Verifies every milestone issue has a closing-footer commit on the PR branch, marks the PR ready if draft, squash-merges with branch deletion, verifies all milestone issues auto-closed, closes the milestone, and writes a transition entry. Host-neutral — same contract on Claude and Codex.
 user-invocable: true
 ---
 

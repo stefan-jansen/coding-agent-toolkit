@@ -1,6 +1,6 @@
 ---
 name: next-issue
-description: This skill should be used after `/plan-issues` has materialized issues on GitHub and the user asks to "implement the next issue", "pick up the next ticket", "do the next one", or runs `/next-issue`. Picks the lowest-numbered open issue in the active milestone, branches if needed, implements per the issue body, runs tests, commits with `Closes #N`, and pushes. Host-neutral: same contract on Claude and Codex.
+description: This skill should be used after `/plan-issues` has materialized issues on GitHub and the user asks to "implement the next issue", "pick up the next ticket", "do the next one", or runs `/next-issue`. Picks the lowest-numbered open issue in the active milestone, branches if needed, implements per the issue body, runs tests, commits with `Closes #N`, and pushes. Host-neutral — same contract on Claude and Codex.
 user-invocable: true
 ---
 
