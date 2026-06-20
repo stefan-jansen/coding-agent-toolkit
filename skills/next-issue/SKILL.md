@@ -148,7 +148,17 @@ footer fires when this PR merges to <default branch>).
 
 If a PR exists, **update its body** to tick the box for the just-implemented
 issue: read the body, replace `- [ ] #<N>` with `- [x] #<N>`, write back via
-`gh pr edit <num> --body-file -`.
+the REST API:
+
+```bash
+gh api -X PATCH "/repos/<owner>/<repo>/pulls/<num>" -f body="$NEW_BODY"
+```
+
+Do **not** use `gh pr edit --body[-file]` for this step. On repos with
+classic-projects history GitHub returns a GraphQL "Projects (classic) is
+being deprecated" warning AND silently fails to update the body, with no
+non-zero exit. The REST PATCH form above bypasses GraphQL entirely and
+works on every repo.
 
 ## Dry-run
 
