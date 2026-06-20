@@ -56,6 +56,14 @@ The cold-start commands MUST:
 - start with `cd <abs path>` so the next agent lands in the right cwd.
 - cover the load-bearing artifacts: branch tips, open PRs/issues,
   milestone state, key file presence.
+- **verify durable artifacts only** — commit SHAs, milestone states,
+  branch tips, PR numbers, skill/prompt inventories, file existence in
+  canonical locations. Do NOT list session-relative files that the
+  transition-rotation hook creates (e.g. `HH.md`, `HHMMSS.md` under
+  today's date dir); they churn by design and produce benign false
+  drift on the first `/continue` replay if the next session lands in
+  a new hour. Cite transition files by content in "Important context"
+  instead, never as a `ls` target.
 
 Example:
 

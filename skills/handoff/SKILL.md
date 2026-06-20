@@ -162,6 +162,16 @@ multiple repos are in play, list cd-then-verify for each.
 The expected values inline are what makes drift detectable. Without
 them, the snapshot is just "run some commands" — useless.
 
+**Verify durable artifacts only.** Commit SHAs, milestone states,
+branch tips, PR numbers, skill/prompt inventories, file existence in
+canonical locations — things that change only when work changes. Do
+NOT list session-relative files that the transition-rotation hook
+creates (e.g. `HH.md`, `HHMMSS.md` under today's date dir); they churn
+by design and will show benign false-positive drift on the first
+`/continue` replay if the next session lands in a new hour. If a
+transition file matters as evidence, cite it by content in "Important
+context," not as a `ls` target in the snapshot.
+
 ### Current state map
 
 Mix of structured (tables) and prose. Tables for things with
