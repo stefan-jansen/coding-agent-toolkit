@@ -111,10 +111,11 @@ asymmetry into per-host bindings rather than pretending parity.
 
 ## Roborun backlog (from dogfood frictions)
 
-1. **`/align` input contract is wrong.** Cold "game of 20 questions" is
-   impractical; the realistic input shape is a brief/document/RFC. Revise
-   `SKILL.md` to accept `/align @brief.md` and fall through to interrogation
-   only when invoked without one.
+1. **`/align` input contract is wrong** (FIXED 2026-06-20, roborun commit
+   `cd70e77`, plugins commit `ee62a92`). `/align @brief.md` reads the named
+   brief and seeds `spec.md` from it directly; falls through to
+   question-by-question interrogation only for sections the brief leaves
+   under-specified.
 2. **Capture-plan hook payload-shape compatibility** (FIXED 2026-06-15,
    plugins commit `b017d27`). Hook now reads `tool_response.filePath` when
    `.plan` is empty; accepts `ROBORUN_WORK_UNIT` override; debug-mode
@@ -192,17 +193,18 @@ asymmetry into per-host bindings rather than pretending parity.
      short note about `codex exec` / `claude -p` as an *optional*
      headless invocation, not as a workflow primitive.
 9. **"Fail-loud means fail-atomic" should be in the handoff/skill
-   template.** During the Step 4b host-swap probe, Codex independently
-   wrote a two-pass `apply_dividends` (validate all `due` events
-   first, then mutate cash + ledger) so a missing-price ValueError
-   leaves the backtest untouched. Claude's version mutated state then
-   raised mid-loop, leaving a half-applied state. The spec didn't
-   require atomicity but it's clearly the better contract under
-   fail-loud. Worth a one-liner in `align`'s contract-writing guidance
-   and in `next-issue`'s implementation guidance: when an error path
-   raises, no prior step in the same logical operation should be
-   half-applied. (Partially landed in `/next-issue` SKILL.md §
-   "Implementation contract" 2026-06-15; still pending in `/align`.)
+   template** (FIXED 2026-06-20, roborun commit `cd70e77`, plugins
+   commit `ee62a92`). Atomicity clause now required in `/align`'s
+   spec-writing rules: when a spec names an error condition, the
+   Acceptance section must include a verifiable check that no prior
+   step in the same logical operation is half-applied on error.
+   Originally surfaced in the Step 4b host-swap probe — Codex's
+   `apply_dividends` two-pass implementation (validate all `due`
+   events, then mutate) was atomic; Claude's mutated-then-raised was
+   not. Now both versions are required to match the Codex shape by
+   the spec, not by accident. (Earlier partial landing in
+   `/next-issue` SKILL.md § "Implementation contract" 2026-06-15
+   still stands.)
 10. **`/ship` live re-verification** (FIXED 2026-06-16 on
     `roborun-dogfood-backtest` 0.2.0). PR #8 squash-merged as
     `c66af9f`; both `Closes #N` footers preserved in the squash body,
@@ -213,17 +215,14 @@ asymmetry into per-host bindings rather than pretending parity.
     skip). Note: milestone `closed_issues` counter includes the PR
     itself; the per-issue list is the load-bearing check, not the
     counter.
-11. **`gh pr edit --body[-file]` fails on `roborun-dogfood-backtest`**
-    with a GraphQL "Projects (classic) is being deprecated" warning —
-    the body is silently NOT updated, no error code returned.
-    Reproduces on both `gh pr edit --body "..."` and `gh pr edit
-    --body-file -`. Workaround that works:
-    `gh api -X PATCH /repos/{owner}/{repo}/pulls/{N} -f body=...`.
-    `/next-issue`'s "Push + PR" step (`gh pr edit ... --body-file -`
-    to tick the box) and `/ship`'s pre-merge body-update step should
-    fall back to the REST path when the GraphQL warning fires, OR
-    just use REST unconditionally. Surfaced during the 0.2.0 dogfood
-    ship.
+11. **`gh pr edit --body[-file]` fails on classic-projects repos**
+    (FIXED 2026-06-20, roborun commit `cc0902b`, plugins commit
+    `081e7f5`). `/next-issue` now updates the PR body via
+    `gh api -X PATCH /repos/{owner}/{repo}/pulls/{N} -f body=...`
+    unconditionally, bypassing the GraphQL "Projects (classic) is
+    being deprecated" silent-fail. Surfaced during the 0.2.0 dogfood
+    ship. `/ship` grepped clean — its squash-merge step doesn't touch
+    the PR body, so no change needed there.
 12. **Codex memory still references `git safe-commit`** (low priority).
     Codex's run on 0.2.0 #6 noted "git safe-commit was unavailable,
     used fallback git commit". The wrapper is deprecated per user
