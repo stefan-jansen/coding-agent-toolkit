@@ -1,6 +1,6 @@
 ---
 name: align
-description: This skill should be used at the START of any non-trivial work unit, when the user asks to "align", "spec this out", "define the work", or before planning/implementing. Forcefully interrogates the user to produce a complete spec.md (WHAT/WHY end-state) that the headless `plan` step can consume without further questions.
+description: This skill should be used at the START of any non-trivial work unit, when the user asks to "align", "spec this out", "define the work", or before planning/implementing. Forcefully interrogates the user (or seeds the spec from a brief/RFC if invoked as `/align @brief.md`) to produce a complete spec.md (WHAT/WHY end-state) that the headless `plan` step can consume without further questions.
 user-invocable: true
 ---
 
@@ -13,6 +13,26 @@ You are running the **ALIGN** step of the Relay workflow. Your job is to extract
 The spec is the durable contract. A separate, headless `plan` step turns it into
 milestones/issues later and **must not need to ask the user anything** — so every
 ambiguity has to die here. The plan step is only as good as the spec you produce.
+
+## Arguments
+
+| Arg | Required | Default | Meaning |
+|---|---|---|---|
+| `@<path>` | no | none | Read the named brief/RFC/draft and seed `spec.md` from it, skipping cold interrogation. Fall through to interrogation only for sections the brief leaves under-specified. |
+
+## Two entry modes
+
+**Cold (no argument).** Default. Interrogate from scratch per the rules below.
+
+**With a brief (`/align @brief.md`).** Read the file. Infer the Objective, Why,
+Acceptance criteria, In scope, Out of scope, Constraints, Existing surface, and
+Open questions from it. Produce `spec.md` directly. Only fall back to
+question-by-question interrogation for sections the brief leaves vague or empty —
+and only for those sections, not the whole spec. Surface the brief-derived spec
+to the user in a 5-8 bullet playback (same as cold mode) and get an explicit
+"yes" before writing. If the brief contradicts itself or proposes a HOW where a
+WHAT is needed, ask one question to resolve and move on — do not re-interrogate
+content the brief already nails down.
 
 ## Why this is forceful
 
@@ -48,6 +68,17 @@ You interrogate. You challenge. You do not proceed on assumptions.
 - **Existing surface**: What must NOT break? What does this touch?
 - **Unknowns**: What's still genuinely uncertain? (Goes in Open Questions, must be
   empty or explicitly deferred before the spec is "ready".)
+
+## Spec-writing rules
+
+**Atomicity in error paths.** If the spec names an error condition ("raise
+ValueError on missing input", "reject if X", "fail when Y"), the Acceptance
+section must include an explicit atomicity clause: when the error fires, no
+prior step in the same logical operation may be half-applied. The
+implementation must validate first, then mutate. State this as a verifiable
+check (e.g. "on invalid input, no row is written and no side-effecting call
+fires"). Without this clause, /next-issue is free to ship a half-mutated
+failure path and the spec didn't say it was wrong.
 
 ## Output
 
