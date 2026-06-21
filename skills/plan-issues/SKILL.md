@@ -129,6 +129,17 @@ echo "created: $issue_url"
 Use `gh issue create --milestone <title>` (gh accepts the title; the API call
 above only existed to create the milestone if missing).
 
+**Codex hosts: use shell `gh` only, never the GitHub MCP connector.** When
+the `plugins."github@openai-curated"` connector is enabled, Codex prefers
+`codex_apps/github.create_issue` over shell `gh issue create`. The connector
+tool is gated by per-tool `approval_mode` (`auto|prompt|approve`), which
+headless `codex exec` cannot satisfy — the call comes back as
+*"user cancelled MCP tool call"* and the issue is silently NOT created.
+Shell `gh issue create` has no such gate. Same applies to milestone
+creation (`gh api ... /milestones -X POST` rather than any connector tool).
+Surfaced in 2026-06-20 dogfood; same root cause as backlog #7 for
+`/next-issue`.
+
 The body must include a "**Plan reference**" footer pointing at the source plan
 so the connection is traceable:
 

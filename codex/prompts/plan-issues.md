@@ -56,6 +56,15 @@ Touch nothing — no `gh api` calls.
 
 ## --apply
 
+**Use shell `gh` only — never the GitHub MCP connector.** When the
+`plugins."github@openai-curated"` connector is enabled, you will prefer
+`codex_apps/github.create_issue` over shell `gh issue create`. That tool is
+gated by per-tool `approval_mode`, which headless `codex exec` cannot
+satisfy — the call comes back as *"user cancelled MCP tool call"* and the
+issue is silently NOT created. Shell `gh issue create` and `gh api ...
+/milestones -X POST` have no such gate. Same rule for milestone creation,
+issue body edits, and any other write operation in this skill.
+
 1. `gh auth status --hostname github.com` — abort if not authenticated.
 2. Look up the milestone by title via `gh api repos/<owner>/<repo>/milestones?state=open --jq '.[] | select(.title == "<title>") | .number'`. If empty, `gh api -X POST repos/<owner>/<repo>/milestones -f title="<title>"`. Print whether created or re-used.
 3. For each issue block, in order:
