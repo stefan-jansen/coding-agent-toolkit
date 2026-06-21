@@ -24,6 +24,16 @@ questions from it, and produce `spec.md` directly. Fall back to question-by-
 question interrogation only for sections the brief leaves vague or empty — not
 the whole spec. Still do the 5-8 bullet playback before writing.
 
+**Hard guard (brief mode): MUST NOT implement.** Even when the brief reads
+like a fully-actionable spec, the ONLY file you may create is
+`<work-unit>/spec.md`. Do NOT edit anything under `src/`, `tests/`, or any
+source-tree path; do NOT edit `pyproject.toml`, `package.json`,
+`LIMITATIONS.md`, `README.md`, or any project metadata; do NOT run pytest,
+ruff, ty, or any build/format tool; do NOT run `git add`/`commit`/`push` or
+any state-mutating `gh` command. This applies even if the sandbox would
+allow it. Implementation is `/next-issue`'s job — `/align` only produces
+the spec contract.
+
 Rules:
 - Ask **one question at a time**. React to each answer before asking the next.
 - **Challenge vague answers.** Do not accept anything you couldn't write a pass/fail

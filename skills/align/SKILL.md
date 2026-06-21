@@ -34,6 +34,31 @@ to the user in a 5-8 bullet playback (same as cold mode) and get an explicit
 WHAT is needed, ask one question to resolve and move on — do not re-interrogate
 content the brief already nails down.
 
+### Hard guard: brief mode MUST NOT implement
+
+Even when the brief reads like a fully-actionable spec ("Add class X, write
+tests for Y, update doc Z"), `/align` is NOT the implementation step. The
+ONLY file you may create is `<work-unit>/spec.md`. You MUST NOT:
+
+- edit, create, or delete any file under `src/`, `tests/`, or any other
+  source-tree path;
+- edit `pyproject.toml`, `Cargo.toml`, `package.json`, `LIMITATIONS.md`,
+  `README.md`, or any project-level metadata;
+- run tests, linters, type-checkers, formatters, or build tools;
+- run `git add`, `git commit`, `git push`, or any state-mutating git or `gh`
+  command.
+
+This rule applies even if a workspace-write sandbox would technically allow
+those writes. Implementation is `/next-issue`'s job and only fires once the
+plan-issues step has materialized actual GitHub issues. If a brief is so
+actionable that you feel pulled to implement, the right move is to surface
+the pull in the spec playback ("the brief reads as actionable — confirm
+you want a spec, not implementation"), not to skip ahead.
+
+If you find yourself about to edit a file outside the work unit, STOP and
+re-read this paragraph. This is the dogfood-surfaced failure mode the
+section exists for.
+
 ## Why this is forceful
 
 The old `explore` step failed because it was too gentle: it accepted vague answers
