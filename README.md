@@ -5,230 +5,130 @@
 > is the **runner**: align → plan → GitHub projection → execute → ship → handoff,
 > across Claude Code and OpenAI Codex without losing context when you switch.
 
+## Status
+
+**Feature-complete · 7 verbs · dual-host (Claude + Codex) · open-weight probe pending**
+
+All seven verbs (`align`, `plan`, `plan-issues`, `next-issue`, `ship`,
+`handoff`, `continue`) are live-validated on both Claude Code and OpenAI
+Codex (the latter driven via `codex exec`). Three dogfood milestones
+shipped end-to-end on
+[`stefan-jansen/roborun-dogfood-backtest`](https://github.com/stefan-jansen/roborun-dogfood-backtest)
+(0.1.0 dividend modeling, 0.2.0 short-side debit, 0.3.0 borrow-rate
+model). Chronological build history and the closed-frictions backlog
+are in [`docs/HISTORY.md`](docs/HISTORY.md).
+
 ## What this is (and is not)
 
-This is the workflow layer that turns a vague request into shipped code on a
-real GitHub project, regardless of which coding agent is driving. It is
-designed around **session continuity** as the core value — long-running work
-that survives `/clear`, an agent crash, or a host swap, because the durable
-state lives in `.workspace/` files that both Claude and Codex read natively.
+The workflow layer that turns a vague request into shipped code on a real
+GitHub project, regardless of which coding agent is driving. Designed
+around **session continuity** as the core value — long-running work that
+survives `/clear`, an agent crash, or a host swap, because the durable
+state lives in `.workspace/` files that both Claude and Codex read
+natively.
 
-It is **not** another agent framework, not a wrapper around `claude` / `codex`,
-and not opinionated about which model you use. The actor remains the agent;
-roborun provides the verbs.
+It is **not** another agent framework, not a wrapper around `claude` /
+`codex`, and not opinionated about which model you use. The actor remains
+the agent; roborun provides the verbs.
 
 ## Verbs
 
-| Verb | What it does | Cross-agent |
+| Verb | What it does | Cross-host |
 |---|---|---|
-| `align` | Forceful spec interrogation — one question at a time until `spec.md` is verifiable | Claude skill + Codex prompt, same shared output |
-| `plan` | Decompose spec into milestones + issues. In-session: native plan mode + capture hook. Headless: `claude -p --permission-mode plan` / `codex exec --sandbox read-only --output-schema` | Both host primitives empirically probed (see below) |
-| `plan-issues` | Translate `plan.md` → GitHub issues + milestone via `gh` | Host-neutral (shells `gh`) |
-| `next` | Pick next open issue, branch, implement, PR | Either host can drive |
-| `ship` | Close milestone, final review, merge | Either host can drive |
-| `handoff` | Write durable transition note for the next session | Either host can drive |
-| `continue` | Resume from latest transition; validate verification commands | Either host can drive |
+| `align` | Forceful spec interrogation — one question at a time until `spec.md` is verifiable. `/align @brief.md` seeds from a brief, falls back to interrogation for under-specified sections. | Claude skill + Codex prompt, shared output |
+| `plan` | Decompose spec into milestones + issues. In-session: native plan mode + capture-plan hook. Headless: `claude -p --permission-mode plan` / `codex exec --sandbox read-only --output-schema` | Both host primitives empirically probed |
+| `plan-issues` | Translate `plan.md` → GitHub milestone + issues via `gh` (dry-run default; `--apply` to create) | Host-neutral (shells `gh`) |
+| `next-issue` | Pick lowest-numbered open issue in active milestone, branch, implement, test, PR | Either host can drive |
+| `ship` | Verify closing-footer coverage, mark PR ready, squash-merge with branch delete, close milestone | Either host can drive |
+| `handoff` | Write durable transition note + verification snapshot under `.workspace/transitions/YYYY-MM-DD/HHMMSS.md` | Either host can drive |
+| `continue` | Read latest transition, run its verification snapshot, report drift, surface next steps (no auto-execute) | Either host can drive |
+
+Six are skills on disk (`skills/<verb>/`); `plan` delegates to each host's
+native plan mode + a capture hook because that's the right primitive.
 
 ## Empirical basis
 
-Plan-mode behavior across Claude and Codex was probed live, not assumed —
-see [`docs/planmode-probe.md`](docs/planmode-probe.md) (TODO: copy from relay
-repo). Key asymmetry: Claude has fine-grained `PostToolUse:ExitPlanMode`
-hooks; Codex has only `notify` on `agent-turn-complete`. roborun bakes the
-asymmetry into per-host bindings rather than pretending parity.
+Host behaviour was probed live, not assumed. Key asymmetry: Claude has
+fine-grained `PostToolUse:ExitPlanMode` hooks; Codex has only `notify` on
+`agent-turn-complete`. roborun bakes the asymmetry into per-host bindings
+rather than pretending parity. Per backlog item #8 in
+[`docs/HISTORY.md`](docs/HISTORY.md), the cross-host primitive is **shared
+durable storage** (`.workspace/`), *not* an `execute-as-host` verb — both
+Claude and Codex read these files natively, so any session on either host
+can call `/continue` and find the same state.
+
+## Roadmap
+
+### Short-term (cleanup)
+
+- **Backlog #12** — Codex memory still references deprecated
+  `git safe-commit`. One-line fix in `~/.codex/AGENTS.md`.
+- **`docs/planmode-probe.md`** — copy from relay repo (currently a TODO
+  reference).
+- **`/ship` doc note** — `gh api PATCH /repos/{}/{}/pulls/{N}/merge` is
+  the permission-safe path on hosts where `gh pr merge --delete-branch`
+  is blocked by sandbox policy. Codex discovered this fallback unprompted
+  during the 0.3.0 ship; documenting it makes the skill self-contained.
+
+### Medium-term (open-weight probe)
+
+Run an existing verb under [opencode](https://opencode.ai/) configured
+for an open-weight model (GLM 5.2 or DeepSeek V4 are the leading
+candidates). `/continue` is the lowest-blast-radius first test — read-only,
+no GitHub writes, no test runs. Measure whether the verb's instructions
+carry through a different harness + a non-frontier model. Three clean
+runs → invest in opencode as a first-class roborun target (likely
+requires a small compiler step to handle opencode's frontmatter dialect).
+
+*Why this matters:* the gap between frontier and open-weight cost per
+successful task is forecast to keep widening through mid-2027 (see the
+research summaries at
+`~/applied-ai/content-marketing/source/agents/llm-costs/`), and
+"unlimited" subscriptions for heavy agent use are quietly ending.
+roborun's host-neutral design is the right place to absorb that shift,
+and the probe doubles as course material — "same workflow, three
+harnesses, model routing as a runtime choice."
+
+### Open backlog items
+
+See [`docs/HISTORY.md`](docs/HISTORY.md) for the full closed-friction
+backlog. Currently open:
+
+- #5 — Cross-platform self-test: parallel handoff/continue/plan-issues
+  behaviour parity tracking (mostly addressed by the 0.3.0 dogfood,
+  remains as a periodic check).
+- #6 — `Closes #N` UX: consider linking issues to PRs via `gh issue
+  develop` so GitHub shows the closes-on-merge relationship in the UI,
+  not just keyword.
+- #12 — see Short-term cleanup above.
 
 ## Relationship to existing work
 
-- **roborev** — sibling. Reviews code; roborun runs work. Cross-link in both READMEs.
-- **relay** (0.4.0, frozen) — the design probe that taught roborun what works.
-  Relay's `plan` CLI is the headless / out-of-session entry point. roborun's
-  daily-driver path is **in-session via skills** (no `claude -p` subprocess
-  context loss). Relay stays on PyPI as the experimental artifact.
-- **coding-agent-plugins** marketplace — distribution channel for the Claude
-  bindings of roborun's verbs. roborun is the canonical source; the marketplace
-  plugins (`workflow`, `transition`) are the downstream Claude-side surface.
-  Codex bindings ship as prompts under `.codex/prompts/`.
+- **roborev** — sibling. Reviews code; roborun runs work. Cross-link in
+  both READMEs.
+- **relay** (0.4.0, frozen) — the design probe that taught roborun what
+  works. Relay's `plan` CLI is the headless / out-of-session entry point.
+  roborun's daily-driver path is **in-session via skills** (no `claude
+  -p` subprocess context loss). Relay stays on PyPI as the experimental
+  artifact.
+- **coding-agent-plugins** marketplace — distribution channel for the
+  Claude bindings of roborun's verbs. roborun is the canonical source;
+  the marketplace plugins (`workflow`, `transition`) are the downstream
+  Claude-side surface. Codex bindings ship as prompts under
+  `.codex/prompts/`.
 
-## Status
+## Repository layout
 
-- [x] Step 0: port `align` skill → workflow plugin (Claude) + `~/.codex/prompts/` (Codex)
-- [x] Step 1: dogfood `/align` on synthetic spec — created
-      `stefan-jansen/roborun-dogfood-backtest`, wrote `spec.md` for dividend
-      modeling (synthesized rather than interrogated — see backlog #1).
-- [x] Step 2: dogfood native plan mode → `plan.md`. Bugs surfaced (#2, #3),
-      both shipped fixes in same session.
-- [x] Step 3: built `/plan-issues` skill, ran on dogfood plan — milestone
-      `0.1.0 — Dividend modeling` + 4 issues materialized.
-- [x] Step 4a: Issues #1 & #2 implemented on Claude (data model + cash
-      credit), 13 tests green, PR #5 open. Handoff to Codex for #3.
-- [x] Step 4b: Codex implemented #3 (reinvest mode, commit `a58eafe`,
-      17 tests). Driven headlessly from Claude via `codex exec`; the
-      handoff digest at `094709.md` was sufficient cold-start context,
-      no clarifying questions raised. Claude then took #4 (docs +
-      LIMITATIONS).
-- [x] Step 5: shipped. PR #5 squash-merged as `55ad3bc` to
-      `roborun-dogfood-backtest/main`; all 4 issues auto-closed by the
-      merge; milestone `0.1.0 — Dividend modeling` complete. First
-      refinement round = the new backlog items below (#7–#9).
-- [x] Step 6: `/ship` skill shipped. Canonical at
-      `skills/ship/SKILL.md`; Codex prompt at `codex/prompts/ship.md`;
-      plugin port at `~/agents/coding/plugins/workflow/skills/ship/`.
-      Verifies closing-footer coverage per milestone issue, marks PR
-      ready if draft, squash-merges with branch deletion (preserves all
-      `Closes #N` footers in the squash body so GitHub auto-closes), and
-      closes the milestone explicitly (GitHub doesn't auto-close
-      milestones). Closes the verb gap from the 2026-06-15 handoff —
-      align → plan → plan-issues → next-issue → ship is now end-to-end
-      teachable. Live re-verification pending on a fresh dogfood
-      milestone (backlog #10).
-- [x] Step 7: `/handoff` + `/continue` skills shipped — the cross-host
-      primitives. Canonical at `skills/handoff/SKILL.md` and
-      `skills/continue/SKILL.md`; Codex prompts at
-      `codex/prompts/{handoff,continue}.md` (symlinked into
-      `~/.codex/prompts/`); plugin ports at
-      `~/agents/coding/plugins/workflow/skills/{handoff,continue}/`.
-      `/handoff` writes a structured digest under
-      `.workspace/transitions/YYYY-MM-DD/HHMMSS.md` with a load-bearing
-      read-only verification snapshot (commands + expected-value
-      comments); `/continue` reads it, runs the snapshot, reports drift,
-      and surfaces the suggested next steps without auto-executing.
-      Per backlog #8, the cross-host primitive is the shared
-      `.workspace/` storage, NOT an `execute-as-host` verb — both
-      Claude and Codex sessions can produce and consume these files
-      identically. All 7 roborun verbs (align, plan, plan-issues,
-      next-issue, ship, handoff, continue) now exist as
-      canonical+plugin+Codex bindings. Live-test pending.
-- [x] Step 8: 0.2.0 dogfood shipped on
-      `stefan-jansen/roborun-dogfood-backtest` (2026-06-16). PR #8
-      squash-merged as `c66af9f`; milestone closed via
-      `gh api PATCH`. Codex driver on #6 (short-side debit
-      implementation) live-verified backlog #7's connector-avoidance
-      prompt — Codex shelled `git push` + `gh pr create` end-to-end
-      without the per-tool approval gate. Claude driver on #7 (docs).
-      `/ship` live-verified (backlog #10). Surfaced two new backlog
-      items: #11 (`gh pr edit --body` silently fails on this repo)
-      and #12 (Codex memory still expects `git safe-commit`).
-
-## Roborun backlog (from dogfood frictions)
-
-1. **`/align` input contract is wrong** (FIXED 2026-06-20, roborun commit
-   `cd70e77`, plugins commit `ee62a92`). `/align @brief.md` reads the named
-   brief and seeds `spec.md` from it directly; falls through to
-   question-by-question interrogation only for sections the brief leaves
-   under-specified.
-2. **Capture-plan hook payload-shape compatibility** (FIXED 2026-06-15,
-   plugins commit `b017d27`). Hook now reads `tool_response.filePath` when
-   `.plan` is empty; accepts `ROBORUN_WORK_UNIT` override; debug-mode
-   payload logging is the v0 [API-drift detector](docs/api-drift-detection.md).
-3. **Stale plugin paths in project settings** (FIXED 2026-06-15, factory
-   commit `dbeac71`, intelligence commit `7c69dad`). One audit sweep found
-   four stale `~/agents/plugins/` references across three files; all moved
-   to `~/agents/coding/plugins/`. Worth re-running the audit periodically.
-4. **`/plan-issues` skill** (SHIPPED 2026-06-15, roborun commit `943d705`,
-   plugins commit `65824a0`). Reads `plan.md`, parses `### Milestone:` +
-   `**Issue N —**` blocks, dry-run by default, `--apply` creates
-   milestone + issues; idempotent by title match.
-5. **Cross-platform self-test** — once Codex sessions are reachable from
-   this workflow, verify that the parallel handoff/continue/plan-issues
-   prompts behave equivalently. Track payload shape on both sides.
-6. **`Closes #N` only fires on merge to default branch.** Surfaced during
-   Step 4a: commits on `dogfood/dividend-modeling` carrying `Closes #1`
-   and `Closes #2` did NOT close the issues at push time. GitHub fires
-   keyword closing only on merge to the repo's default branch. Implication
-   for the outer-objective acceptance ("every implementation step traces
-   to a closed GH issue"): closure happens at PR merge, not at step
-   completion. `/plan-issues` SKILL.md and a future `/next-issue` skill
-   should say this explicitly. Consider: should `/next-issue` add the
-   closing footer to the commit (current convention) OR also link the
-   issue to the PR so GitHub shows the closes-on-merge relationship in
-   the UI? `gh issue develop` does this; `gh pr create` doesn't auto-link
-   beyond keyword.
-7. **Codex headless push blocked by GitHub connector approval gate**
-   (FIXED 2026-06-15 — surfaced Step 4b; LIVE-VERIFIED 2026-06-16 on
-   `roborun-dogfood-backtest` 0.2.0 #6 driven via `codex exec` — the
-   connector-avoidance paragraph in `/next-issue` carried through, Codex
-   shelled `git push` + `gh pr create` end-to-end without the per-tool
-   approval gate firing).
-   *Root cause* (verified in the Step 4b JSON log): when
-   `plugins."github@openai-curated"` is enabled in `~/.codex/config.toml`,
-   Codex prefers the OpenAI **`codex_apps` MCP server**
-   (`github_create_blob`, `github_create_pull_request`, …) over shell
-   `git push` for remote writes. Those connector tools are gated by
-   per-tool `approval_mode` (`auto|prompt|approve`), which is
-   independent of `approval_policy`. Headless `codex exec` cannot
-   satisfy "approve", so the call comes back as
-   *"user cancelled MCP tool call"*. Shell `git push` is never
-   attempted unless the agent is told to.
-   *What didn't work*:
-   - `-c 'plugins."github@openai-curated".enabled=false'` — silently
-     ignored; connector stays active.
-   - `-c '...approval_mode="never"'` — schema rejects (only
-     `auto|prompt|approve` are valid).
-   - `-c '...approval_mode="auto"'` on individual tools — still cancels
-     (the gate isn't only at the named-tool level).
-   *What works*: tell Codex in the prompt to use shell `git`/`gh` only
-   and to avoid `codex_apps` connector tools. Verified live: with the
-   instruction, Codex shells `git --version` etc. without trying the
-   connector. The `/next-issue` Codex prompt now carries this
-   instruction; orchestrator prompts driving `codex exec` should
-   include the same paragraph.
-   *Open follow-up*: there is no config-only way to disable the
-   connector for one invocation. If we end up driving Codex from a
-   harness, the connector-avoidance instruction must be in every
-   invocation's prompt.
-8. **Shared `.workspace/` is what makes host-swap work — no
-   `--execute-as <host>` verb needed.** The session originally framed
-   the gap as "no verb to launch the other host." That's the wrong
-   level of abstraction. The actual primitive that makes a host swap
-   reproducible is **shared durable storage**: `.workspace/work/*`,
-   `.workspace/transitions/*`, `spec.md`, `plan.md`, the handoff digest
-   — both Claude and Codex read these natively. As long as a session
-   on either host can call `/continue` and find the same state, the
-   "swap" is a no-op of agent identity. So roborun should:
-   - **keep** the `handoff` + `continue` verbs as the cross-host
-     contract, and harden them around `.workspace/` paths;
-   - **not** add an `execute-as` verb — the active host (whichever
-     CLI the user is in) is always the right driver;
-   - **document** in `handoff` that any host can pick up, and add a
-     short note about `codex exec` / `claude -p` as an *optional*
-     headless invocation, not as a workflow primitive.
-9. **"Fail-loud means fail-atomic" should be in the handoff/skill
-   template** (FIXED 2026-06-20, roborun commit `cd70e77`, plugins
-   commit `ee62a92`). Atomicity clause now required in `/align`'s
-   spec-writing rules: when a spec names an error condition, the
-   Acceptance section must include a verifiable check that no prior
-   step in the same logical operation is half-applied on error.
-   Originally surfaced in the Step 4b host-swap probe — Codex's
-   `apply_dividends` two-pass implementation (validate all `due`
-   events, then mutate) was atomic; Claude's mutated-then-raised was
-   not. Now both versions are required to match the Codex shape by
-   the spec, not by accident. (Earlier partial landing in
-   `/next-issue` SKILL.md § "Implementation contract" 2026-06-15
-   still stands.)
-10. **`/ship` live re-verification** (FIXED 2026-06-16 on
-    `roborun-dogfood-backtest` 0.2.0). PR #8 squash-merged as
-    `c66af9f`; both `Closes #N` footers preserved in the squash body,
-    GitHub auto-closed #6 and #7; milestone closed via
-    `gh api PATCH .../milestones/2` (as designed — GitHub doesn't
-    auto-close milestones). All readiness gates fired correctly
-    (closing-footer coverage, mergeable=CLEAN, no-checks-configured
-    skip). Note: milestone `closed_issues` counter includes the PR
-    itself; the per-issue list is the load-bearing check, not the
-    counter.
-11. **`gh pr edit --body[-file]` fails on classic-projects repos**
-    (FIXED 2026-06-20, roborun commit `cc0902b`, plugins commit
-    `081e7f5`). `/next-issue` now updates the PR body via
-    `gh api -X PATCH /repos/{owner}/{repo}/pulls/{N} -f body=...`
-    unconditionally, bypassing the GraphQL "Projects (classic) is
-    being deprecated" silent-fail. Surfaced during the 0.2.0 dogfood
-    ship. `/ship` grepped clean — its squash-merge step doesn't touch
-    the PR body, so no change needed there.
-12. **Codex memory still references `git safe-commit`** (low priority).
-    Codex's run on 0.2.0 #6 noted "git safe-commit was unavailable,
-    used fallback git commit". The wrapper is deprecated per user
-    CLAUDE.md but Codex's user-level memory still expects it. One-line
-    fix in Codex's user-level instructions.
+```
+skills/                # canonical Claude skill source (6 verbs)
+  align/   continue/   handoff/
+  next-issue/  plan-issues/  ship/
+codex/prompts/         # Codex prompt mirror (6 verbs)
+docs/                  # HISTORY, planmode-probe (TODO), api-drift-detection
+README.md              # this file
+LICENSE                # MIT
+```
 
 ## License
 
-MIT (see `LICENSE`).
+MIT (see [`LICENSE`](LICENSE)).
