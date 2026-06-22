@@ -1,7 +1,7 @@
 # roborun
 
 > **WIP, private.** Cross-agent workflow toolkit for coding agents. Pairs with
-> [roborev](https://github.com/stefan-jansen/roborev) (review agent) — roborun
+> [roborev](https://github.com/kenn-io/roborev) (review agent) — roborun
 > is the **runner**: align → plan → GitHub projection → execute → ship → handoff,
 > across Claude Code and OpenAI Codex without losing context when you switch.
 
