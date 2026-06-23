@@ -1,8 +1,8 @@
 # /handoff (Codex prompt)
 
 Install to `~/.codex/prompts/handoff.md` so it's invocable as `/handoff` in
-Codex. This is the Codex binding of the roborun HANDOFF step — same
-contract as the Claude `handoff` skill (`roborun/skills/handoff/SKILL.md`).
+Codex. This is the Codex binding of the HANDOFF step — same
+contract as the Claude `handoff` skill (`skills/handoff/SKILL.md`).
 
 ---
 
@@ -22,7 +22,7 @@ Parse from the user's invocation (any order):
 - `--dry-run` — print to stdout instead of writing.
 
 **Always write under `.workspace/transitions/`** — the shared path is
-load-bearing for cross-host continuation (roborun backlog #8). Never
+load-bearing for cross-host continuation (backlog #8). Never
 `.codex/transitions/` or `.claude/transitions/`.
 
 ## File structure (mandatory)
@@ -68,7 +68,7 @@ The cold-start commands MUST:
 Example:
 
 ```bash
-cd ~/agents/coding/roborun
+cd ~/agents/coding/coding-agent-toolkit
 git log --oneline -3                                    # newest: <sha>
 ls skills/                                              # expect: align continue handoff next-issue plan-issues ship
 cd ~/agents/coding/roborun-dogfood-backtest

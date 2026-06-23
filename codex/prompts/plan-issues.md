@@ -1,9 +1,9 @@
 # /plan-issues (Codex prompt)
 
 Install to `~/.codex/prompts/plan-issues.md` so it's invocable as `/plan-issues`
-in Codex. This is the Codex binding of the roborun PLAN-ISSUES step — same
+in Codex. This is the Codex binding of the PLAN-ISSUES step — same
 contract as the Claude `plan-issues` skill
-(`roborun/skills/plan-issues/SKILL.md`); both shell `gh` and converge on the
+(`skills/plan-issues/SKILL.md`); both shell `gh` and converge on the
 same set of created GitHub issues + milestone.
 
 ---

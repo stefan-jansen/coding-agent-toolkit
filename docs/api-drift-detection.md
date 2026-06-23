@@ -10,7 +10,7 @@ weeks before we noticed).
 
 This doc records the lightweight, hand-runnable drift detector we built into
 the workflow plugin's hooks, and the heavier self-test we owe ourselves
-once roborun has earned a CI footprint.
+once the toolkit has earned a CI footprint.
 
 ## v0 — defensive logging (now)
 
@@ -48,7 +48,7 @@ has to remember to set the flag and check the files.
 
 ## v1 — self-test harness (deferred)
 
-Once roborun has CI (currently it doesn't — it's a private WIP repo with no
+Once the toolkit has CI (currently it doesn't — it's a private WIP repo with no
 GH Actions configured), the right shape is a small Python script that:
 
 1. Spawns `claude -p --permission-mode plan --setting-sources ... "<canned prompt>"`
@@ -56,10 +56,10 @@ GH Actions configured), the right shape is a small Python script that:
 2. Asserts that `~/.claude/plans/<slug>.md` and the work-unit `plan.md`
    appeared, with the expected shape
 3. Repeats for Codex's `codex exec --sandbox read-only --output-schema ...`
-4. Runs weekly on cron, opens a roborun issue on drift
+4. Runs weekly on cron, opens a toolkit issue on drift
 
-This is gold-plating until roborun is on the daily path. File as a
-roborun backlog item; revisit after the dogfood is in routine use.
+This is gold-plating until the toolkit is on the daily path. File as a
+backlog item; revisit after the dogfood is in routine use.
 
 ## v2 — host-side hook fixtures (speculative)
 
@@ -67,4 +67,4 @@ If Anthropic or OpenAI ever publish hook-payload reference fixtures
 (they don't today, as far as we can tell), we wire the self-test against
 those instead of our captured snapshots. Cheaper, more authoritative,
 breaks loudly the moment the vendor changes the contract. Track via the
-roborun reference link list.
+toolkit reference link list.

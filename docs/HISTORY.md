@@ -1,6 +1,9 @@
-# roborun build history
+# Build history
 
-Chronological record of how roborun came together. The
+Chronological record of how this toolkit came together. The project
+was renamed from `roborun` → `coding-agent-toolkit` on 2026-06-23 to
+position it as the successor to `claude-code-toolkit`; "roborun" below
+is the prior name, kept here for narrative continuity. The
 [README](../README.md) carries the current state; this file is the
 narrative + the closed-friction backlog.
 

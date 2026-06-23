@@ -6,13 +6,13 @@ user-invocable: true
 
 # handoff — write a cold-startable transition file
 
-You are running the **HANDOFF** step of the roborun workflow. Your job is to
+You are running the **HANDOFF** step of the workflow. Your job is to
 freeze the current session's state into a single Markdown file that lives in
 the shared `.workspace/transitions/` tree so any future session on either
 host can resume without re-deriving context.
 
 This step is **host-neutral**: same contract on Claude and Codex. The shared
-`.workspace/` directory is the host-swap primitive (see roborun backlog #8) —
+`.workspace/` directory is the host-swap primitive (see backlog #8) —
 there is no "execute as the other host" verb because the durable state is
 what makes the swap work, not orchestration.
 
@@ -70,7 +70,7 @@ output the next agent can compare against the expected values listed
 inline (as comments) so drift is detectable. Example:
 
 ```bash
-cd ~/agents/coding/roborun
+cd ~/agents/coding/coding-agent-toolkit
 git log --oneline -3                       # most recent: <sha>
 ls skills/                                 # expect: align next-issue plan-issues ship handoff continue
 ```
@@ -82,7 +82,7 @@ ls skills/                                 # expect: align next-issue plan-issue
 ### What shipped this session
 - <repo> <sha> — <one-line per file/commit>
 
-### Roborun verbs status (or "Active project state" for non-roborun
+### Toolkit verbs status (or "Active project state" for non-toolkit
 work)
 | Verb | Status | Notes |
 |---|---|---|
@@ -191,7 +191,7 @@ The cold-reader CANNOT see decisions made in this session, dead-ends
 hit and avoided, or invariants held in your head. List the ones a
 fresh agent would otherwise re-derive (badly). Limit to 3-5 points —
 more than that is a sign the digest is doing too much. Anything
-larger belongs in `~/agents/coding/roborun/README.md` or a memory
+larger belongs in `~/agents/coding/coding-agent-toolkit/README.md` or a memory
 file, not a transition.
 
 ### Files touched

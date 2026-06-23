@@ -6,7 +6,7 @@ user-invocable: true
 
 # ship — close out the active milestone
 
-You are running the **SHIP** step of the roborun workflow. Your job is to take
+You are running the **SHIP** step of the workflow. Your job is to take
 the milestone's open PR — built up one commit at a time by `/next-issue` — and
 land it on the default branch, then verify that all milestone issues auto-closed
 and close the milestone.
@@ -91,7 +91,7 @@ If already ready, skip.
 
 ## Squash merge
 
-The roborun convention is **one PR per milestone, squashed into one commit on
+The convention is **one PR per milestone, squashed into one commit on
 the default branch**. The squash subject defaults to the PR title (which by
 `/next-issue` convention is the milestone title). The squash body should
 preserve every `Closes #<N>` footer so GitHub closes all milestone issues.
@@ -131,7 +131,7 @@ MERGE_SHA=$(gh pr view <PR> --json mergeCommit --jq .mergeCommit.oid)
    Expect an empty array. If anything is still open, the squash body may have
    lost a footer — surface the open issue list, close manually with
    `gh issue close <N> --reason completed --comment "Shipped in <MERGE_SHA>"`,
-   and add a roborun backlog entry noting the footer-preservation bug.
+   and add a backlog entry noting the footer-preservation bug.
 2. **Default branch advanced.** `git fetch origin && git log -1 origin/<default> --format='%H %s'` —
    verify the most recent commit is the merge.
 3. **Local default branch synced.** If the user is on the default branch
@@ -199,7 +199,7 @@ Do not run `gh pr ready`, `gh pr merge`, or close the milestone in dry-run.
   `/next-issue` to fill them, abort.
 - PR has conflicts / failing checks → surface state, abort.
 - `gh pr merge` fails → surface stderr, abort. Do NOT retry destructively.
-- Post-merge: issues still open → surface, close manually, log roborun
+- Post-merge: issues still open → surface, close manually, log a toolkit
   backlog entry about the missing footer.
 
 ## Output to the user
@@ -219,5 +219,5 @@ After a non-dry-run ship, append to the active hourly transition file at
 Then tell the user: the merge SHA, the closed issues, and what's next
 (`/plan-issues` for the next milestone, or `/align` for a new scope). If
 anything fell out of spec (a missing footer caught at post-merge, a milestone
-that had to be hand-closed), surface it as a roborun backlog candidate for
-`~/agents/coding/roborun/README.md`.
+that had to be hand-closed), surface it as a backlog candidate for
+`~/agents/coding/coding-agent-toolkit/README.md`.

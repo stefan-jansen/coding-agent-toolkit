@@ -1,9 +1,9 @@
 # /next-issue (Codex prompt)
 
 Install to `~/.codex/prompts/next-issue.md` so it's invocable as `/next-issue`
-in Codex. This is the Codex binding of the roborun NEXT-ISSUE step — same
+in Codex. This is the Codex binding of the NEXT-ISSUE step — same
 contract as the Claude `next-issue` skill
-(`roborun/skills/next-issue/SKILL.md`).
+(`skills/next-issue/SKILL.md`).
 
 ---
 
@@ -149,7 +149,7 @@ After a non-dry-run shipment, append to
 
 Tell the user: which issue shipped, what's next (next open issue, or `/ship`
 if milestone is empty), and any frictions worth backlog entries in
-`~/agents/coding/roborun/README.md`.
+`~/agents/coding/coding-agent-toolkit/README.md`.
 
 ## Failure modes
 

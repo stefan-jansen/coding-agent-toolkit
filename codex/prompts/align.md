@@ -1,8 +1,8 @@
 # /align (Codex prompt)
 
 Install to `~/.codex/prompts/align.md` so it's invocable as `/align` in Codex.
-This is the Codex binding of the roborun ALIGN step — same contract as the
-Claude `align` skill (`roborun/skills/align/SKILL.md`); both converge on the
+This is the Codex binding of the ALIGN step — same contract as the
+Claude `align` skill (`skills/align/SKILL.md`); both converge on the
 same `spec.md`.
 
 ---

@@ -6,7 +6,7 @@ user-invocable: true
 
 # plan-issues — project the plan onto GitHub
 
-You are running the **PLAN-ISSUES** step of the roborun workflow. Your job is to
+You are running the **PLAN-ISSUES** step of the workflow. Your job is to
 turn the durable `plan.md` (produced by the headless `plan` step) into a GitHub
 **milestone + one issue per planned issue**, so that subsequent `/next` work
 units can be traced 1:1 to a closed issue.
@@ -35,7 +35,7 @@ If `--repo` is omitted, **stop and ask**. Never guess the repo.
 
 ## What "Issue N" looks like in plan.md
 
-The roborun convention (see `align`'s sibling `plan` step) produces headings of
+The convention (see `align`'s sibling `plan` step) produces headings of
 the form:
 
 ```
@@ -210,4 +210,4 @@ At the end, write a one-line entry to the active hourly transition file at
 
 Then tell the user: issues are open, milestone is wired, `/next` is the next
 verb. If frictions surfaced (parse ambiguity, naming clash, anything
-hand-massaged), log them as a one-line entry in roborun's backlog.
+hand-massaged), log them as a one-line entry in the toolkit's backlog.

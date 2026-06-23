@@ -1,11 +1,11 @@
-# roborun — cross-agent workflow toolkit
+# coding-agent-toolkit
 
 ## Purpose
 
 Provide the workflow layer (`align` → `plan` → `plan-issues` → `next-issue` →
 `ship` → `handoff` → `continue`) that turns a vague request into shipped code
 on a real GitHub project, host-neutral across Claude Code and OpenAI Codex.
-The actor is the agent; roborun supplies the verbs.
+The actor is the agent; the toolkit supplies the verbs.
 
 See `README.md` for current status, verb table, empirical basis, and roadmap.
 See `docs/HISTORY.md` for the chronological build log and the closed-friction
@@ -13,7 +13,7 @@ backlog.
 
 ## Cross-host primitive
 
-The single contract that makes roborun host-neutral: **shared durable
+The single contract that makes the toolkit host-neutral: **shared durable
 state under `.workspace/`**, read natively by both Claude and Codex.
 
 | Path | Role |

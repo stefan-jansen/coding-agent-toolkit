@@ -1,8 +1,8 @@
 # /continue (Codex prompt)
 
 Install to `~/.codex/prompts/continue.md` so it's invocable as `/continue`
-in Codex. This is the Codex binding of the roborun CONTINUE step — same
-contract as the Claude `continue` skill (`roborun/skills/continue/SKILL.md`).
+in Codex. This is the Codex binding of the CONTINUE step — same
+contract as the Claude `continue` skill (`skills/continue/SKILL.md`).
 
 ---
 

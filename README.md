@@ -1,7 +1,7 @@
-# roborun
+# coding-agent-toolkit
 
 > **Pre-1.0 — actively used; verb contracts may shift.** Cross-agent workflow toolkit for coding agents. Pairs with
-> [roborev](https://github.com/kenn-io/roborev) (review agent) — roborun
+> [roborev](https://github.com/kenn-io/roborev) (review agent) — the toolkit
 > is the **runner**: align → plan → GitHub projection → execute → ship → handoff,
 > across Claude Code and OpenAI Codex without losing context when you switch.
 
@@ -29,7 +29,7 @@ natively.
 
 It is **not** another agent framework, not a wrapper around `claude` /
 `codex`, and not opinionated about which model you use. The actor remains
-the agent; roborun provides the verbs.
+the agent; the toolkit provides the verbs.
 
 ## Verbs
 
@@ -50,7 +50,7 @@ native plan mode + a capture hook because that's the right primitive.
 
 Host behaviour was probed live, not assumed. Key asymmetry: Claude has
 fine-grained `PostToolUse:ExitPlanMode` hooks; Codex has only `notify` on
-`agent-turn-complete`. roborun bakes the asymmetry into per-host bindings
+`agent-turn-complete`. The toolkit bakes the asymmetry into per-host bindings
 rather than pretending parity. Per backlog item #8 in
 [`docs/HISTORY.md`](docs/HISTORY.md), the cross-host primitive is **shared
 durable storage** (`.workspace/`), *not* an `execute-as-host` verb — both
@@ -75,7 +75,7 @@ for an open-weight model (GLM 5.2 or DeepSeek V4 are the leading
 candidates). `/continue` is the lowest-blast-radius first test — read-only,
 no GitHub writes, no test runs. Measure whether the verb's instructions
 carry through a different harness + a non-frontier model. Three clean
-runs → invest in opencode as a first-class roborun target (likely
+runs → invest in opencode as a first-class toolkit target (likely
 requires a small compiler step to handle opencode's frontmatter dialect).
 
 *Why this matters:* the gap between frontier and open-weight cost per
@@ -83,7 +83,7 @@ successful task is forecast to keep widening through mid-2027 (see the
 research summaries at
 `~/applied-ai/content-marketing/source/agents/llm-costs/`), and
 "unlimited" subscriptions for heavy agent use are quietly ending.
-roborun's host-neutral design is the right place to absorb that shift,
+The toolkit's host-neutral design is the right place to absorb that shift,
 and the probe doubles as course material — "same workflow, three
 harnesses, model routing as a runtime choice."
 
@@ -102,15 +102,15 @@ backlog. Currently open:
 
 ## Relationship to existing work
 
-- **roborev** — sibling. Reviews code; roborun runs work. Cross-link in
+- **roborev** — sibling. Reviews code; the toolkit runs work. Cross-link in
   both READMEs.
 - **relay** (frozen, repos deleted) — the design probe that taught
-  roborun what works. The CLI-orchestrates-the-agent pattern doesn't
+  the toolkit what works: the CLI-orchestrates-the-agent pattern doesn't
   survive subprocess context loss; the agent should drive, with shared
   `.workspace/` state as the host-swap primitive. Full post-mortem in
   [`docs/relay-lessons.md`](docs/relay-lessons.md).
 - **coding-agent-plugins** marketplace — distribution channel for the
-  Claude bindings of roborun's verbs. roborun is the canonical source;
+  Claude bindings of the toolkit's verbs. The toolkit is the canonical source;
   the marketplace plugins (`workflow`, `transition`) are the downstream
   Claude-side surface. Codex bindings ship as prompts under
   `.codex/prompts/`.

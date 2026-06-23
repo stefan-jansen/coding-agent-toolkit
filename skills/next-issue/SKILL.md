@@ -6,7 +6,7 @@ user-invocable: true
 
 # next-issue — implement the next open issue in the milestone
 
-You are running the **NEXT-ISSUE** step of the roborun workflow. Your job is to
+You are running the **NEXT-ISSUE** step of the workflow. Your job is to
 take ONE open GitHub issue (the next in line for the active milestone) and ship
 the implementation as commits on a feature branch, so that the PR for the
 milestone moves forward by exactly one issue.
@@ -59,7 +59,7 @@ and in the chosen milestone. If not, abort with the reason.
 
 ## Branch resolution (idempotent)
 
-The roborun convention is **one PR per milestone**, with one commit per issue.
+The convention is **one PR per milestone**, with one commit per issue.
 So the branch is the same across all `next-issue` runs within a milestone.
 
 1. Look for an existing open PR whose head matches the milestone slug — e.g.
@@ -89,7 +89,7 @@ tells you**. The skill's job is to set the boundaries.
 2. **Honor fail-loud-means-fail-atomic.** If your implementation has an error
    path that raises, no prior step in the same logical operation should be
    half-applied. Prefer a validation pre-pass before any state mutation.
-   (This rule emerged from the 2026-06-15 host-swap probe — see roborun
+   (This rule emerged from the 2026-06-15 host-swap probe — see the toolkit
    backlog #9.)
 3. **Run tests before committing.** Use the project's test runner. If the
    suite has a fast subset, run that during iteration and the full suite
@@ -113,7 +113,7 @@ Closes #<N>.
 **Important caveat about `Closes #N`**: GitHub only fires keyword closing when
 the commit lands on the **default branch**. On a feature branch with an open
 PR, the issue stays open until the PR merges (then all `Closes #N` footers in
-the squashed/merged commits fire at once). This is the roborun convention —
+the squashed/merged commits fire at once). This is the convention —
 the closing footer is the trace, not the trigger. Do NOT manually close the
 issue with `gh issue close` — that breaks the merge-time trace.
 
@@ -216,4 +216,4 @@ transition file at `.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H).md`:
 
 Then tell the user: which issue shipped, what's next (the next open issue, or
 `/ship` if the milestone is empty), and any frictions worth backlog entries
-in `~/agents/coding/roborun/README.md`.
+in `~/agents/coding/coding-agent-toolkit/README.md`.

@@ -1,6 +1,6 @@
 # Lessons from relay (2026-05-28 → 2026-06-12)
 
-> What the relay experiment taught roborun. Relay shipped four releases
+> What the relay experiment taught the toolkit. Relay shipped four releases
 > (`relay-workflow` 0.1.0 → 0.4.0) over two weeks as a host-neutral
 > cross-agent workflow CLI. It was deliberately frozen and the GitHub
 > repos taken down — the load-bearing findings are recorded here so
@@ -30,7 +30,7 @@ issue. Every subprocess re-derives the project state from scratch. The
 overhead dominated the actual work — and recovery from a single failed
 turn was strictly worse than just doing the work in a foreground session.
 
-**What roborun does instead.** Implementation runs in the foreground
+**What the toolkit does instead.** Implementation runs in the foreground
 Claude or Codex session as a skill (`next-issue`). The agent that wrote
 the spec is the agent that implements it; durable state lives in
 `.workspace/`, which both hosts read natively. No subprocess. Relay 0.4.0
@@ -50,7 +50,7 @@ natively. Wrapping a subprocess just to pass file paths through is
 moving bits the LLM can already see. The wrapper added latency, lost
 context, and forced every workflow change through a Python release.
 
-**What roborun does instead.** The cross-host primitive is the
+**What the toolkit does instead.** The cross-host primitive is the
 `.workspace/` directory itself. Any session on either host can read it,
 write to it, and `/continue` from a transition file another host wrote.
 The verbs are skills (Claude) and mirrored prompts (Codex). There is no
@@ -68,7 +68,7 @@ Codex's `--sandbox read-only --output-schema` gives a cleaner JSON shape
 and `-o <FILE>` is deterministic. Treating them as interchangeable made
 the relay docs and demos misleading.
 
-**What roborun does instead.** Per-host bindings, empirically probed
+**What the toolkit does instead.** Per-host bindings, empirically probed
 ([`planmode-probe.md`](planmode-probe.md)). Same verb contract, two
 implementations, the asymmetry surfaced in the README's "host
 recommendation matrix" rather than hidden. A Claude session uses
@@ -88,7 +88,7 @@ the same; the binding is honest.
   repo.
 - **`Closes #N` as the bubble-up signal** — PR body keyword closes issue
   on merge, milestone closes when all its issues close. Both relay and
-  roborun rely on this; it's the lightest-weight way to make GitHub the
+  the toolkit rely on this; it's the lightest-weight way to make GitHub the
   state machine.
 
 ## What did not survive

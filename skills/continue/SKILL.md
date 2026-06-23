@@ -6,7 +6,7 @@ user-invocable: true
 
 # continue — resume from a transition file
 
-You are running the **CONTINUE** step of the roborun workflow. Your job is
+You are running the **CONTINUE** step of the workflow. Your job is
 to take a transition file produced by `/handoff` (or a freeform digest of
 the same shape) and bring the current session up to the state described
 there: confirm the working directory, run the verification snapshot, flag

@@ -1,8 +1,8 @@
 # /ship (Codex prompt)
 
 Install to `~/.codex/prompts/ship.md` so it's invocable as `/ship` in Codex.
-This is the Codex binding of the roborun SHIP step — same contract as the
-Claude `ship` skill (`roborun/skills/ship/SKILL.md`).
+This is the Codex binding of the SHIP step — same contract as the
+Claude `ship` skill (`skills/ship/SKILL.md`).
 
 ---
 
@@ -96,7 +96,7 @@ MERGE_SHA=$(gh pr view <PR> --json mergeCommit --jq .mergeCommit.oid)
 1. `gh issue list --repo <owner>/<repo> --milestone "<title>" --state open --json number`
    → expect `[]`. Any still open → close manually with
    `gh issue close <N> --reason completed --comment "Shipped in <MERGE_SHA>"`
-   and note a roborun backlog entry about the missing footer.
+   and note a backlog entry about the missing footer.
 2. `git fetch origin && git log -1 origin/<default> --format='%H %s'` → expect
    the merge commit.
 3. If user is on the deleted feature branch locally:
@@ -149,7 +149,7 @@ After a non-dry-run ship, append to
 
 Tell the user: merge SHA, closed issues, what's next (`/plan-issues` for the
 next milestone or `/align` for a new scope), and any backlog candidates worth
-adding to `~/agents/coding/roborun/README.md`.
+adding to `~/agents/coding/coding-agent-toolkit/README.md`.
 
 ## Idempotency
 
