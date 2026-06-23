@@ -20,4 +20,5 @@ dist/
 # Local state (per agent-interop convention)
 .workspace/transitions/
 .workspace/work/current/*/state.json
+.workspace/memory/.index_state.*
 ACTIVE_WORK

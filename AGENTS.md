@@ -8,8 +8,8 @@ on a real GitHub project, host-neutral across Claude Code and OpenAI Codex.
 The actor is the agent; the toolkit supplies the verbs.
 
 See `README.md` for current status, verb table, empirical basis, and roadmap.
-See `docs/HISTORY.md` for the chronological build log and the closed-friction
-backlog.
+See `.workspace/memory/history.md` for the internal build log and the
+closed-friction backlog (project memory, not reader-facing).
 
 ## Cross-host primitive
 
@@ -86,7 +86,7 @@ produce the durable `HHMMSS.md` snapshot that `/continue` resumes from.
 ## References (read on-demand)
 
 - `README.md` — status, verb table, roadmap.
-- `docs/HISTORY.md` — chronological build log + closed-friction backlog.
+- `.workspace/memory/history.md` — chronological build log + closed-friction backlog (internal).
 - `docs/planmode-probe.md` — host plan-mode empirical findings.
 - `.workspace/work/` — open work units.
 

@@ -15,8 +15,7 @@ Codex (the latter driven via `codex exec`). Three dogfood milestones
 shipped end-to-end on
 [`stefan-jansen/roborun-dogfood-backtest`](https://github.com/stefan-jansen/roborun-dogfood-backtest)
 (0.1.0 dividend modeling, 0.2.0 short-side debit, 0.3.0 borrow-rate
-model). Chronological build history and the closed-frictions backlog
-are in [`docs/HISTORY.md`](docs/HISTORY.md).
+model).
 
 ## What this is (and is not)
 
@@ -51,8 +50,7 @@ native plan mode + a capture hook because that's the right primitive.
 Host behaviour was probed live, not assumed. Key asymmetry: Claude has
 fine-grained `PostToolUse:ExitPlanMode` hooks; Codex has only `notify` on
 `agent-turn-complete`. The toolkit bakes the asymmetry into per-host bindings
-rather than pretending parity. Per backlog item #8 in
-[`docs/HISTORY.md`](docs/HISTORY.md), the cross-host primitive is **shared
+rather than pretending parity. The cross-host primitive is **shared
 durable storage** (`.workspace/`), *not* an `execute-as-host` verb — both
 Claude and Codex read these files natively, so any session on either host
 can call `/continue` and find the same state.
@@ -89,9 +87,6 @@ harnesses, model routing as a runtime choice."
 
 ### Open backlog items
 
-See [`docs/HISTORY.md`](docs/HISTORY.md) for the full closed-friction
-backlog. Currently open:
-
 - #5 — Cross-platform self-test: parallel handoff/continue/plan-issues
   behaviour parity tracking (mostly addressed by the 0.3.0 dogfood,
   remains as a periodic check).
@@ -122,7 +117,7 @@ skills/                # canonical Claude skill source (6 verbs)
   align/   continue/   handoff/
   next-issue/  plan-issues/  ship/
 codex/prompts/         # Codex prompt mirror (6 verbs)
-docs/                  # HISTORY, planmode-probe, api-drift-detection, relay-lessons
+docs/                  # planmode-probe, api-drift-detection, relay-lessons
 README.md              # this file
 LICENSE                # MIT
 ```

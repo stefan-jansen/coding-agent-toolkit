@@ -1,6 +1,14 @@
 # Memory Index
 
-No memory entries yet. Write project-specific persistent state here as
+## history.md
+- status: active
+- last_referenced: 2026-06-23
+- tokens: ~6500
+- anchors: chronological build log + closed-friction backlog (formerly `docs/HISTORY.md`; moved out of reader-facing docs/ on rename)
+
+---
+
+Write project-specific persistent state here as
 `.workspace/memory/<slug>.md` files and register them above with:
 
 ```
