@@ -87,8 +87,7 @@ produce the durable `HHMMSS.md` snapshot that `/continue` resumes from.
 
 - `README.md` — status, verb table, roadmap.
 - `docs/HISTORY.md` — chronological build log + closed-friction backlog.
-- `docs/planmode-probe.md` — host plan-mode empirical findings (TODO: copy
-  from relay repo).
+- `docs/planmode-probe.md` — host plan-mode empirical findings.
 - `.workspace/work/` — open work units.
 
 @.workspace/memory/MEMORY_INDEX.md

@@ -1,6 +1,6 @@
 # roborun
 
-> **WIP, private.** Cross-agent workflow toolkit for coding agents. Pairs with
+> **Pre-1.0 — actively used; verb contracts may shift.** Cross-agent workflow toolkit for coding agents. Pairs with
 > [roborev](https://github.com/kenn-io/roborev) (review agent) — roborun
 > is the **runner**: align → plan → GitHub projection → execute → ship → handoff,
 > across Claude Code and OpenAI Codex without losing context when you switch.
@@ -63,8 +63,6 @@ can call `/continue` and find the same state.
 
 - **Backlog #12** — Codex memory still references deprecated
   `git safe-commit`. One-line fix in `~/.codex/AGENTS.md`.
-- **`docs/planmode-probe.md`** — copy from relay repo (currently a TODO
-  reference).
 - **`/ship` doc note** — `gh api PATCH /repos/{}/{}/pulls/{N}/merge` is
   the permission-safe path on hosts where `gh pr merge --delete-branch`
   is blocked by sandbox policy. Codex discovered this fallback unprompted
@@ -124,7 +122,7 @@ skills/                # canonical Claude skill source (6 verbs)
   align/   continue/   handoff/
   next-issue/  plan-issues/  ship/
 codex/prompts/         # Codex prompt mirror (6 verbs)
-docs/                  # HISTORY, planmode-probe (TODO), api-drift-detection
+docs/                  # HISTORY, planmode-probe, api-drift-detection
 README.md              # this file
 LICENSE                # MIT
 ```
