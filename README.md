@@ -1,7 +1,7 @@
 # coding-agent-toolkit
 
 A workflow toolkit for coding agents. It takes a piece of work from "we
-should do something about X" through to shipped — usually a merged PR,
+should do something about X" through to done — usually a merged PR,
 though the same steps drive non-code work too (a research report, a
 course module, a long-form post). The shape is the same: align on what
 "done" looks like, break it into chunks, work each chunk to completion,
@@ -16,7 +16,7 @@ The agent stays in the driver's seat. The toolkit supplies the
 structure — specs, plans, transition notes — that lets one session
 pick up cleanly where another one left off.
 
-## From a vague request to shipped
+## From a vague request to done
 
 Coding agents are good at producing things — code, prose, plans, decks
 — once they know exactly what to produce. The first half of any piece

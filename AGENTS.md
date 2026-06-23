@@ -7,7 +7,7 @@ Contributor / maintainer notes. For the project introduction, see
 
 Provide a small set of host-neutral workflow steps — `align`, `plan`,
 `plan-issues`, `next-issue`, `ship`, `handoff`, `continue` — that drive
-a piece of work from a vague request to shipped on GitHub, identically
+a piece of work from a vague request to done on GitHub, identically
 on Claude Code and OpenAI Codex. The dominant deliverable is a merged
 PR; the same chain drives non-code work too (a research report, a
 course module, a long-form post), since the GitHub projection
