@@ -29,7 +29,7 @@ up on a different agent tomorrow. This toolkit takes that structural
 layer.
 
 Each piece of work gets its own directory under `.workspace/work/<unit>/`.
-The first step writes a `spec.md` there: the explicit end-state,
+The first step writes a `spec.md` there: a verifiable end-state,
 sharpened by interrogating you one question at a time, or seeded from
 a brief you wrote and only asking what the brief left out. The second
 step writes `plan.md`: that end-state broken into issue-sized chunks
@@ -63,11 +63,11 @@ closing closes the milestone. GitHub is the state machine.
 
 A milestone whose issues are "draft the introduction", "draft the
 middle three sections", "edit pass", "publish" closes the same way a
-software milestone does. `next-issue` and `ship` drive each step
-regardless of whether what comes out at the bottom is a function, a
-post, or a slide deck — most of the examples below are code-flavoured
-because that's still the dominant use case, but the chain itself
-doesn't notice.
+software milestone does. `next-issue` and `ship` drive each one
+regardless of whether what comes out at the end is a function, a post,
+or a slide deck. The code-flavoured language in the table above
+("branch", "tests", "PR") is the dominant use case, not a constraint
+on the chain.
 
 ## Switching between Claude Code and OpenAI Codex
 
@@ -196,7 +196,7 @@ The toolkit grew out of two earlier projects:
 
 - **[relay](docs/relay-lessons.md)** was a Python CLI that tried to
   orchestrate Claude Code and Codex as subprocess backends from the
-  outside. Its verb chain and the GitHub-as-projection convention
+  outside. Its step chain and the GitHub-as-projection convention
   survived; the orchestrator-from-outside premise did not. The full
   post-mortem is in `docs/relay-lessons.md`.
 - **[claude-code-toolkit](https://github.com/stefan-jansen/claude-code-toolkit)**
@@ -205,8 +205,8 @@ The toolkit grew out of two earlier projects:
 
 It is a sibling, not a competitor, to
 [roborev](https://github.com/kenn-io/roborev): roborev reviews code,
-this toolkit drives work. The two compose, and the roborev integration
-above is what that composition looks like in practice.
+this toolkit drives work. The two compose; the integration described
+above is the visible seam between them.
 
 ## Status and contributing
 
