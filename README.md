@@ -16,23 +16,36 @@ The agent stays in the driver's seat. The toolkit supplies the
 structure — specs, plans, transition notes — that lets one session
 pick up cleanly where another one left off.
 
-## From a vague request to done
+## From rough idea to done
 
-Coding agents are good at producing things — code, prose, plans, decks
-— once they know exactly what to produce. The first half of any piece
-of work — turning "users keep complaining about X, can we fix it" or
-"we should publish something about Y" into a sharp spec the agent can
-act on without re-asking at every step — is where sessions get long,
-decisions get lost, and you end up re-explaining the same constraints
-three times.
+Building the thing — code, prose, plan, deck — is rarely the slow part
+of getting a piece of work done. The slow parts are around it:
+pinning down what "done" actually means, surfacing the constraints
+nobody wrote down at the start, deciding which edge cases matter,
+keeping the references and prior decisions close to hand as the work
+proceeds, tracking which chunks are finished and which aren't, and
+not losing any of that when the session resets or you pick the work
+up on a different agent tomorrow. This toolkit takes that structural
+layer.
 
-This toolkit treats GitHub as the projection surface rather than the
-agent's own memory: milestones for the goal, issues for the chunks,
-branches for the work, PRs for the review-and-merge. Nothing about
-that machinery is code-specific — `Closes #N` in a PR body closes an
-issue about a chapter draft just as cleanly as one about a bug fix.
-The work progresses through a chain of steps, each of which produces a
-durable output:
+Each piece of work gets its own directory under `.workspace/work/<unit>/`.
+The first step writes a `spec.md` there: the explicit end-state,
+sharpened by interrogating you one question at a time, or seeded from
+a brief you wrote and only asking what the brief left out. The second
+step writes `plan.md`: that end-state broken into issue-sized chunks
+with their dependencies. Follow-up notes, references, decisions, and
+open questions accumulate in the same directory as the work
+progresses. Those files are the durable memory of the project —
+every later step reads them, and they survive a `/clear`, a host
+swap, or coming back to it Monday morning.
+
+Once a plan exists, the chain projects it onto GitHub as the public
+state machine: a milestone for the goal, issues for the chunks,
+branches for the work, PRs for the review-and-merge — and the version
+control, history, and review trail that come with all of that. Nothing
+about that projection is code-specific — `Closes #N` in a PR body
+closes an issue about a chapter draft just as cleanly as one about a
+bug fix. Each step in the chain produces a durable output:
 
 | Step | Produces |
 |---|---|

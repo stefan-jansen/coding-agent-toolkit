@@ -6,14 +6,21 @@ Contributor / maintainer notes. For the project introduction, see
 ## Purpose
 
 Provide a small set of host-neutral workflow steps — `align`, `plan`,
-`plan-issues`, `next-issue`, `ship`, `handoff`, `continue` — that drive
-a piece of work from a vague request to done on GitHub, identically
-on Claude Code and OpenAI Codex. The dominant deliverable is a merged
-PR; the same chain drives non-code work too (a research report, a
-course module, a long-form post), since the GitHub projection
-(milestone / issues / branches / PRs / `Closes #N`) doesn't care what
-the deliverable is. The actor is the agent; this repository
-supplies the step definitions and the file-shaped contract they share.
+`plan-issues`, `next-issue`, `ship`, `handoff`, `continue` — that take
+a piece of work from rough idea to done, identically on Claude Code
+and OpenAI Codex. The chain owns the structural work around producing
+the thing: clarifying what "done" means, breaking it into chunks,
+accumulating references and constraints as they surface, tracking
+progress, carrying memory across sessions and host swaps, and
+projecting state onto GitHub for review and version control. Local
+state for each piece of work lives in `.workspace/work/<unit>/` (spec,
+plan, follow-up notes, references); GitHub is the public projection
+(milestone / issues / branches / PRs / `Closes #N`). The dominant
+deliverable is a merged PR; the chain drives non-code work too (a
+research report, a course module, a long-form post) since the
+projection doesn't care what the deliverable is. The actor is the
+agent; this repository supplies the step definitions and the
+file-shaped contract they share.
 
 ## Cross-host primitive
 
