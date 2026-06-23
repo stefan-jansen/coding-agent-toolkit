@@ -104,11 +104,11 @@ backlog. Currently open:
 
 - **roborev** — sibling. Reviews code; roborun runs work. Cross-link in
   both READMEs.
-- **relay** (0.4.0, frozen) — the design probe that taught roborun what
-  works. Relay's `plan` CLI is the headless / out-of-session entry point.
-  roborun's daily-driver path is **in-session via skills** (no `claude
-  -p` subprocess context loss). Relay stays on PyPI as the experimental
-  artifact.
+- **relay** (frozen, repos deleted) — the design probe that taught
+  roborun what works. The CLI-orchestrates-the-agent pattern doesn't
+  survive subprocess context loss; the agent should drive, with shared
+  `.workspace/` state as the host-swap primitive. Full post-mortem in
+  [`docs/relay-lessons.md`](docs/relay-lessons.md).
 - **coding-agent-plugins** marketplace — distribution channel for the
   Claude bindings of roborun's verbs. roborun is the canonical source;
   the marketplace plugins (`workflow`, `transition`) are the downstream
@@ -122,7 +122,7 @@ skills/                # canonical Claude skill source (6 verbs)
   align/   continue/   handoff/
   next-issue/  plan-issues/  ship/
 codex/prompts/         # Codex prompt mirror (6 verbs)
-docs/                  # HISTORY, planmode-probe, api-drift-detection
+docs/                  # HISTORY, planmode-probe, api-drift-detection, relay-lessons
 README.md              # this file
 LICENSE                # MIT
 ```
