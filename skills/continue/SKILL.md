@@ -91,6 +91,30 @@ closed may be important.
 If `--no-verify` is passed, skip this step entirely and go straight to
 "Present".
 
+## Surface open code reviews (if roborev is installed)
+
+After the verification snapshot, run the same check the roborev
+SessionStart hook runs — `/continue` is the other entry point where a
+fresh session needs to know about open reviews on the current branch.
+
+```bash
+if command -v roborev >/dev/null 2>&1; then
+  branch=$(git branch --show-current 2>/dev/null)
+  [ -n "$branch" ] && timeout 0.5 roborev list --open --json --limit 5 --branch "$branch" 2>/dev/null
+fi
+```
+
+Silent on missing PATH, missing branch, daemon timeout, or 0 reviews —
+same contract as the hook. When the count is > 0, surface it as a
+one-line entry in the "Verification" section of the response:
+
+```
+- ⚠ roborev: N open reviews on <branch>
+```
+
+This is informational, like drift — let the user decide whether to
+address the reviews before picking a next step.
+
 ## Present the state to the user
 
 Once verification is done, write a short structured response:
