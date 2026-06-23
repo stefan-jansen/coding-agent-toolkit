@@ -73,19 +73,23 @@ doesn't notice.
 
 Each coding agent has its own session state, its own conventions for
 where memory lives, and its own opinions about when to ask versus when
-to act. Trying to use both on the same feature usually means
-re-explaining the work every time you swap.
+to act. Used on the same piece of work in alternation, the second
+agent has no easy way to pick up what the first one already decided —
+what the spec was, which constraints got pinned down, what's still
+open.
 
-The swap primitive here is the filesystem, not an orchestrator. Both
-Claude Code and OpenAI Codex read project files natively, so state that
-lives in a file is automatically visible to both. The convention:
+Because the structural layer for each piece of work already lives in
+files, the swap is the filesystem itself, not an orchestrator. Both
+Claude Code and OpenAI Codex read project files natively, so the next
+session — whichever host it runs on — picks the work up by reading
+what the previous session wrote.
 
 | Path | Contents |
 |---|---|
 | `AGENTS.md` | Canonical project instructions. Codex reads it natively; Claude includes it via a one-line `CLAUDE.md`. |
 | `.workspace/memory/` | Persistent project memory — facts that should survive a `/clear`. |
 | `.workspace/transitions/` | Session handoffs (see next section). |
-| `.workspace/work/` | Active work units: specs, plans, follow-up notes. |
+| `.workspace/work/` | Active work units: specs, plans, references, follow-up notes. |
 
 Each step in the chain ships as both a Claude skill
 (`skills/<step>/SKILL.md`) and a Codex prompt
@@ -103,11 +107,14 @@ replaces.)
 
 ## Long-running work that outlives a single session
 
-A multi-day project outlives any single agent session. Context budgets
-run out, machines restart, you walk away on Friday and come back on
-Monday. The usual fix — a prose handoff at end-of-day — goes stale
-silently: the next session has no way to tell whether the state it
-describes is still true when it picks the work up.
+The work unit on disk survives the session ending, but the in-flight
+context that came with it — what just changed, why that matters for
+the next step, which question is currently open — doesn't transfer for
+free. Context budgets run out, machines restart, you walk away on
+Friday and come back on Monday. The usual fix — a prose handoff at
+end-of-day — goes stale silently: the next session has no way to tell
+whether the state it describes is still true when it picks the work
+up.
 
 `handoff` writes a transition file under
 `.workspace/transitions/YYYY-MM-DD/HHMMSS.md`. It contains the usual
@@ -132,7 +139,7 @@ running against the current repo tells you what is true now.
 
 ## Open code reviews on the current branch
 
-Feature work and code review run on different cadences. A review can
+Code review and ongoing work run on different cadences. A review can
 arrive while you're off doing something else, and the next session that
 picks up the branch needs to know about it before doing more work on
 top.
@@ -177,7 +184,7 @@ marketplace, which mirrors these skills.
 **OpenAI Codex.** Point your prompts directory at `codex/prompts/`, or
 copy the files in.
 
-The steps are meant to be invoked in order on a new feature
+The steps are meant to be invoked in order on a new piece of work
 (`/align`, `/plan`, `/plan-issues`, `/next-issue`, `/ship`) and at the
 boundaries of long-running work (`/handoff` and `/continue`). The
 `SKILL.md` file in each `skills/<step>/` directory is the

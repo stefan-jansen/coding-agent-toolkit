@@ -36,7 +36,7 @@ files.
 | `CLAUDE.md` | One line — `@AGENTS.md`. |
 | `.workspace/memory/` | Persistent project memory; load on demand. |
 | `.workspace/transitions/YYYY-MM-DD/HHMMSS.md` | `/handoff` output; `/continue` resumes from any of these on either host. |
-| `.workspace/work/` | Active work units (specs, plans, follow-ups). |
+| `.workspace/work/` | Active work units (specs, plans, references, follow-up notes). |
 
 Keep this contract tight. Never seed `.claude/transitions/` or
 `.codex/state/` for new work; never invent a `run-as-other-host`
