@@ -1,11 +1,11 @@
 # coding-agent-toolkit
 
 A workflow toolkit for coding agents. It takes a piece of work from "we
-should do something about X" through to a shipped artifact — usually a
-merged PR, though the same steps drive non-code work too (a research
-report, a course module, a long-form post). The shape is the same:
-align on what "done" looks like, break it into chunks, work each chunk
-to completion, hand off cleanly when the session ends.
+should do something about X" through to shipped — usually a merged PR,
+though the same steps drive non-code work too (a research report, a
+course module, a long-form post). The shape is the same: align on what
+"done" looks like, break it into chunks, work each chunk to completion,
+hand off cleanly when the session ends.
 
 The toolkit is built to survive the things that usually derail
 long-running agent work: running out of context mid-project, switching
@@ -16,7 +16,7 @@ The agent stays in the driver's seat. The toolkit supplies the
 structure — specs, plans, transition notes — that lets one session
 pick up cleanly where another one left off.
 
-## From a vague request to a shipped artifact
+## From a vague request to shipped
 
 Coding agents are good at producing things — code, prose, plans, decks
 — once they know exactly what to produce. The first half of any piece
@@ -32,7 +32,7 @@ branches for the work, PRs for the review-and-merge. Nothing about
 that machinery is code-specific — `Closes #N` in a PR body closes an
 issue about a chapter draft just as cleanly as one about a bug fix.
 The work progresses through a chain of steps, each of which produces a
-durable artifact:
+durable output:
 
 | Step | Produces |
 |---|---|
@@ -42,16 +42,16 @@ durable artifact:
 | `next-issue` | A branch, an implementation, tests, a PR. Picks the lowest-numbered open issue in the active milestone. |
 | `ship` | A squash-merged PR and a closed milestone. Verifies every milestone issue has a closing-footer commit before merging. |
 
-The artifact at each step is the contract. Picking the work up later —
-or handing it to a different agent session — means reading the
-artifact, not re-deriving the state. `Closes #N` in PR bodies is the
+The output at each step is the contract. Picking the work up later —
+or handing it to a different agent session — means reading the file on
+disk, not re-deriving the state. `Closes #N` in PR bodies is the
 bubble-up signal: a merged PR closes the issue, and the last issue
 closing closes the milestone. GitHub is the state machine.
 
 A milestone whose issues are "draft the introduction", "draft the
 middle three sections", "edit pass", "publish" closes the same way a
 software milestone does. `next-issue` and `ship` drive each step
-regardless of whether the artifact at the bottom is a function, a
+regardless of whether what comes out at the bottom is a function, a
 post, or a slide deck — most of the examples below are code-flavoured
 because that's still the dominant use case, but the chain itself
 doesn't notice.

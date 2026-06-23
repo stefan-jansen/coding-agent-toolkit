@@ -7,12 +7,12 @@ Contributor / maintainer notes. For the project introduction, see
 
 Provide a small set of host-neutral workflow steps — `align`, `plan`,
 `plan-issues`, `next-issue`, `ship`, `handoff`, `continue` — that drive
-a piece of work from a vague request to a shipped artifact on GitHub,
-identically on Claude Code and OpenAI Codex. The dominant artifact is
-a merged PR; the same chain drives non-code work too (a research
-report, a course module, a long-form post), since the GitHub
-projection (milestone / issues / branches / PRs / `Closes #N`) doesn't
-care what the deliverable is. The actor is the agent; this repository
+a piece of work from a vague request to shipped on GitHub, identically
+on Claude Code and OpenAI Codex. The dominant deliverable is a merged
+PR; the same chain drives non-code work too (a research report, a
+course module, a long-form post), since the GitHub projection
+(milestone / issues / branches / PRs / `Closes #N`) doesn't care what
+the deliverable is. The actor is the agent; this repository
 supplies the step definitions and the file-shaped contract they share.
 
 ## Cross-host primitive
@@ -82,7 +82,7 @@ will silently skip an invalid prompt.
    on each call; `/ship` is a no-op when already shipped.
 5. **MCP optional.** Steps use `gh`, `git`, and the filesystem. No MCP
    is required for a step to do its job.
-6. **Verify durable artifacts only.** `/handoff` verification snapshots
+6. **Verify durable files only.** `/handoff` verification snapshots
    list commit SHAs, milestone states, branch tips, skill / prompt
    inventories — never session-relative rotating files (e.g. `HH.md`).
 
