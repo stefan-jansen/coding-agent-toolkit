@@ -1,28 +1,38 @@
 # coding-agent-toolkit
 
-A workflow toolkit for coding agents. It takes a feature from "we should
-do something about X" through to a merged PR — and is designed to
-survive the things that usually derail long-running agent work: running
-out of context mid-feature, switching from Claude Code to OpenAI Codex
-(or back) part way through, or coming back to half-finished work the
-next morning.
+A workflow toolkit for coding agents. It takes a piece of work from "we
+should do something about X" through to a shipped artifact — usually a
+merged PR, though the same steps drive non-code work too (a research
+report, a course module, a long-form post). The shape is the same:
+align on what "done" looks like, break it into chunks, work each chunk
+to completion, hand off cleanly when the session ends.
+
+The toolkit is built to survive the things that usually derail
+long-running agent work: running out of context mid-project, switching
+from Claude Code to OpenAI Codex (or back) part way through, or coming
+back to half-finished work the next morning.
 
 The agent stays in the driver's seat. The toolkit supplies the
 structure — specs, plans, transition notes — that lets one session
 pick up cleanly where another one left off.
 
-## Taking a vague request through to a merged PR
+## From a vague request to a shipped artifact
 
-Coding agents are good at writing code once they know exactly what to
-write. The first half of a feature — turning "users keep complaining
-about X, can we fix it" into "here is the test plan, the type
-signatures, the migration steps, and the milestone breakdown" — is
-where sessions get long, decisions get lost, and the human ends up
-re-explaining the same constraints three times.
+Coding agents are good at producing things — code, prose, plans, decks
+— once they know exactly what to produce. The first half of any piece
+of work — turning "users keep complaining about X, can we fix it" or
+"we should publish something about Y" into a sharp spec the agent can
+act on without re-asking at every step — is where sessions get long,
+decisions get lost, and you end up re-explaining the same constraints
+three times.
 
 This toolkit treats GitHub as the projection surface rather than the
-agent's own memory. A feature progresses through a chain of steps, each
-of which produces a durable artifact:
+agent's own memory: milestones for the goal, issues for the chunks,
+branches for the work, PRs for the review-and-merge. Nothing about
+that machinery is code-specific — `Closes #N` in a PR body closes an
+issue about a chapter draft just as cleanly as one about a bug fix.
+The work progresses through a chain of steps, each of which produces a
+durable artifact:
 
 | Step | Produces |
 |---|---|
@@ -37,6 +47,14 @@ or handing it to a different agent session — means reading the
 artifact, not re-deriving the state. `Closes #N` in PR bodies is the
 bubble-up signal: a merged PR closes the issue, and the last issue
 closing closes the milestone. GitHub is the state machine.
+
+A milestone whose issues are "draft the introduction", "draft the
+middle three sections", "edit pass", "publish" closes the same way a
+software milestone does. `next-issue` and `ship` drive each step
+regardless of whether the artifact at the bottom is a function, a
+post, or a slide deck — most of the examples below are code-flavoured
+because that's still the dominant use case, but the chain itself
+doesn't notice.
 
 ## Switching between Claude Code and OpenAI Codex
 
@@ -72,7 +90,7 @@ replaces.)
 
 ## Long-running work that outlives a single session
 
-A multi-day feature outlives any single agent session. Context budgets
+A multi-day project outlives any single agent session. Context budgets
 run out, machines restart, you walk away on Friday and come back on
 Monday. The usual fix — a prose handoff at end-of-day — goes stale
 silently: the next session has no way to tell whether the state it

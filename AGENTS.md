@@ -7,10 +7,13 @@ Contributor / maintainer notes. For the project introduction, see
 
 Provide a small set of host-neutral workflow steps — `align`, `plan`,
 `plan-issues`, `next-issue`, `ship`, `handoff`, `continue` — that drive
-a feature from a vague request to a merged PR on GitHub, identically
-on Claude Code and OpenAI Codex. The actor is the agent; this
-repository supplies the step definitions and the file-shaped contract
-they share.
+a piece of work from a vague request to a shipped artifact on GitHub,
+identically on Claude Code and OpenAI Codex. The dominant artifact is
+a merged PR; the same chain drives non-code work too (a research
+report, a course module, a long-form post), since the GitHub
+projection (milestone / issues / branches / PRs / `Closes #N`) doesn't
+care what the deliverable is. The actor is the agent; this repository
+supplies the step definitions and the file-shaped contract they share.
 
 ## Cross-host primitive
 
