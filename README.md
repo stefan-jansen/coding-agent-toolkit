@@ -1,127 +1,184 @@
 # coding-agent-toolkit
 
-> **Pre-1.0 — actively used; verb contracts may shift.** Cross-agent workflow toolkit for coding agents. Pairs with
-> [roborev](https://github.com/kenn-io/roborev) (review agent) — the toolkit
-> is the **runner**: align → plan → GitHub projection → execute → ship → handoff,
-> across Claude Code and OpenAI Codex without losing context when you switch.
+A workflow toolkit for coding agents. It takes a feature from "we should
+do something about X" through to a merged PR — and is designed to
+survive the things that usually derail long-running agent work: running
+out of context mid-feature, switching from Claude Code to OpenAI Codex
+(or back) part way through, or coming back to half-finished work the
+next morning.
 
-## Status
+The agent stays in the driver's seat. The toolkit supplies the
+structure — specs, plans, transition notes — that lets one session
+pick up cleanly where another one left off.
 
-**Feature-complete · 7 verbs · dual-host (Claude + Codex) · open-weight probe pending**
+## Taking a vague request through to a merged PR
 
-All seven verbs (`align`, `plan`, `plan-issues`, `next-issue`, `ship`,
-`handoff`, `continue`) are live-validated on both Claude Code and OpenAI
-Codex (the latter driven via `codex exec`). Three dogfood milestones
-shipped end-to-end on
-[`stefan-jansen/roborun-dogfood-backtest`](https://github.com/stefan-jansen/roborun-dogfood-backtest)
-(0.1.0 dividend modeling, 0.2.0 short-side debit, 0.3.0 borrow-rate
-model).
+Coding agents are good at writing code once they know exactly what to
+write. The first half of a feature — turning "users keep complaining
+about X, can we fix it" into "here is the test plan, the type
+signatures, the migration steps, and the milestone breakdown" — is
+where sessions get long, decisions get lost, and the human ends up
+re-explaining the same constraints three times.
 
-## What this is (and is not)
+This toolkit treats GitHub as the projection surface rather than the
+agent's own memory. A feature progresses through a chain of steps, each
+of which produces a durable artifact:
 
-The workflow layer that turns a vague request into shipped code on a real
-GitHub project, regardless of which coding agent is driving. Designed
-around **session continuity** as the core value — long-running work that
-survives `/clear`, an agent crash, or a host swap, because the durable
-state lives in `.workspace/` files that both Claude and Codex read
-natively.
+| Step | Produces |
+|---|---|
+| `align` | `spec.md` — a verifiable end-state. Either by interrogating you one question at a time, or by seeding from a brief and asking only the questions the brief didn't answer. |
+| `plan` | `plan.md` — a milestone broken into issue-sized chunks. Runs in the host's native plan mode, in-session or headless. |
+| `plan-issues` | A GitHub milestone and one issue per chunk. Default is dry-run; pass `--apply` to actually create. |
+| `next-issue` | A branch, an implementation, tests, a PR. Picks the lowest-numbered open issue in the active milestone. |
+| `ship` | A squash-merged PR and a closed milestone. Verifies every milestone issue has a closing-footer commit before merging. |
 
-It is **not** another agent framework, not a wrapper around `claude` /
-`codex`, and not opinionated about which model you use. The actor remains
-the agent; the toolkit provides the verbs.
+The artifact at each step is the contract. Picking the work up later —
+or handing it to a different agent session — means reading the
+artifact, not re-deriving the state. `Closes #N` in PR bodies is the
+bubble-up signal: a merged PR closes the issue, and the last issue
+closing closes the milestone. GitHub is the state machine.
 
-## Verbs
+## Switching between Claude Code and OpenAI Codex
 
-| Verb | What it does | Cross-host |
-|---|---|---|
-| `align` | Forceful spec interrogation — one question at a time until `spec.md` is verifiable. `/align @brief.md` seeds from a brief, falls back to interrogation for under-specified sections. | Claude skill + Codex prompt, shared output |
-| `plan` | Decompose spec into milestones + issues. In-session: native plan mode + capture-plan hook. Headless: `claude -p --permission-mode plan` / `codex exec --sandbox read-only --output-schema` | Both host primitives empirically probed |
-| `plan-issues` | Translate `plan.md` → GitHub milestone + issues via `gh` (dry-run default; `--apply` to create) | Host-neutral (shells `gh`) |
-| `next-issue` | Pick lowest-numbered open issue in active milestone, branch, implement, test, PR | Either host can drive |
-| `ship` | Verify closing-footer coverage, mark PR ready, squash-merge with branch delete, close milestone | Either host can drive |
-| `handoff` | Write durable transition note + verification snapshot under `.workspace/transitions/YYYY-MM-DD/HHMMSS.md` | Either host can drive |
-| `continue` | Read latest transition, run its verification snapshot, report drift, surface next steps (no auto-execute) | Either host can drive |
+Each coding agent has its own session state, its own conventions for
+where memory lives, and its own opinions about when to ask versus when
+to act. Trying to use both on the same feature usually means
+re-explaining the work every time you swap.
 
-Six are skills on disk (`skills/<verb>/`); `plan` delegates to each host's
-native plan mode + a capture hook because that's the right primitive.
+The swap primitive here is the filesystem, not an orchestrator. Both
+Claude Code and OpenAI Codex read project files natively, so state that
+lives in a file is automatically visible to both. The convention:
 
-## Empirical basis
+| Path | Contents |
+|---|---|
+| `AGENTS.md` | Canonical project instructions. Codex reads it natively; Claude includes it via a one-line `CLAUDE.md`. |
+| `.workspace/memory/` | Persistent project memory — facts that should survive a `/clear`. |
+| `.workspace/transitions/` | Session handoffs (see next section). |
+| `.workspace/work/` | Active work units: specs, plans, follow-up notes. |
 
-Host behaviour was probed live, not assumed. Key asymmetry: Claude has
-fine-grained `PostToolUse:ExitPlanMode` hooks; Codex has only `notify` on
-`agent-turn-complete`. The toolkit bakes the asymmetry into per-host bindings
-rather than pretending parity. The cross-host primitive is **shared
-durable storage** (`.workspace/`), *not* an `execute-as-host` verb — both
-Claude and Codex read these files natively, so any session on either host
-can call `/continue` and find the same state.
+Each step in the chain ships as both a Claude skill
+(`skills/<step>/SKILL.md`) and a Codex prompt
+(`codex/prompts/<step>.md`). The skill source is canonical; the Codex
+prompt is the same contract shaped for Codex's strict-YAML frontmatter.
+Either host can run any step. The other host picks up by reading the
+files the step left behind.
 
-## Roadmap
+There is deliberately no "execute as the other host" command. Wrapping
+`claude -p` or `codex exec` in a subprocess just to pass file paths
+through loses context every invocation, and the cost stops being worth
+it. (That was the lesson from the [relay
+experiment](docs/relay-lessons.md), the design probe this toolkit
+replaces.)
 
-### Short-term (cleanup)
+## Long-running work that outlives a single session
 
-- **Backlog #12** — Codex memory still references deprecated
-  `git safe-commit`. One-line fix in `~/.codex/AGENTS.md`.
-- **`/ship` doc note** — `gh api PATCH /repos/{}/{}/pulls/{N}/merge` is
-  the permission-safe path on hosts where `gh pr merge --delete-branch`
-  is blocked by sandbox policy. Codex discovered this fallback unprompted
-  during the 0.3.0 ship; documenting it makes the skill self-contained.
+A multi-day feature outlives any single agent session. Context budgets
+run out, machines restart, you walk away on Friday and come back on
+Monday. The usual fix — a prose handoff at end-of-day — goes stale
+silently: the next session has no way to tell whether the state it
+describes is still true when it picks the work up.
 
-### Medium-term (open-weight probe)
+`handoff` writes a transition file under
+`.workspace/transitions/YYYY-MM-DD/HHMMSS.md`. It contains the usual
+prose summary plus, crucially, a fenced bash block of read-only
+commands with inline `# expect: <value>` comments. The next session —
+same agent or different, same host or different — invokes:
 
-Run an existing verb under [opencode](https://opencode.ai/) configured
-for an open-weight model (GLM 5.2 or DeepSeek V4 are the leading
-candidates). `/continue` is the lowest-blast-radius first test — read-only,
-no GitHub writes, no test runs. Measure whether the verb's instructions
-carry through a different harness + a non-frontier model. Three clean
-runs → invest in opencode as a first-class toolkit target (likely
-requires a small compiler step to handle opencode's frontmatter dialect).
+```
+continue from .workspace/transitions/YYYY-MM-DD/HHMMSS.md
+```
 
-*Why this matters:* the gap between frontier and open-weight cost per
-successful task is forecast to keep widening through mid-2027 (see the
-research summaries at
-`~/applied-ai/content-marketing/source/agents/llm-costs/`), and
-"unlimited" subscriptions for heavy agent use are quietly ending.
-The toolkit's host-neutral design is the right place to absorb that shift,
-and the probe doubles as course material — "same workflow, three
-harnesses, model routing as a runtime choice."
+`continue` runs each command in the snapshot, compares the output to
+the expected value, and flags every divergence. Drift is information,
+not failure — a repo that has moved on by one commit is fine; a
+milestone that was open and is now closed may be important. The user
+picks a next step from the suggestions in the file; `continue` does not
+auto-execute anything.
 
-### Open backlog items
+The verification snapshot is what makes the handoff durable. A prose
+note tells you what someone thought was true an hour ago. A snapshot
+running against the current repo tells you what is true now.
 
-- #5 — Cross-platform self-test: parallel handoff/continue/plan-issues
-  behaviour parity tracking (mostly addressed by the 0.3.0 dogfood,
-  remains as a periodic check).
-- #6 — `Closes #N` UX: consider linking issues to PRs via `gh issue
-  develop` so GitHub shows the closes-on-merge relationship in the UI,
-  not just keyword.
-- #12 — see Short-term cleanup above.
+## Open code reviews on the current branch
 
-## Relationship to existing work
+Feature work and code review run on different cadences. A review can
+arrive while you're off doing something else, and the next session that
+picks up the branch needs to know about it before doing more work on
+top.
 
-- **roborev** — sibling. Reviews code; the toolkit runs work. Cross-link in
-  both READMEs.
-- **relay** (frozen, repos deleted) — the design probe that taught
-  the toolkit what works: the CLI-orchestrates-the-agent pattern doesn't
-  survive subprocess context loss; the agent should drive, with shared
-  `.workspace/` state as the host-swap primitive. Full post-mortem in
-  [`docs/relay-lessons.md`](docs/relay-lessons.md).
-- **coding-agent-plugins** marketplace — distribution channel for the
-  Claude bindings of the toolkit's verbs. The toolkit is the canonical source;
-  the marketplace plugins (`workflow`, `transition`) are the downstream
-  Claude-side surface. Codex bindings ship as prompts under
-  `.codex/prompts/`.
+If you also use [roborev](https://github.com/kenn-io/roborev) for code
+review, `continue` (and an optional `SessionStart` hook in Claude Code)
+surface any open reviews on the current branch when a session begins or
+a transition resumes. The check is silent when roborev isn't installed,
+when the branch has no open reviews, or when the review daemon doesn't
+respond within half a second — so it costs nothing when you don't use
+it.
 
 ## Repository layout
 
 ```
-skills/                # canonical Claude skill source (6 verbs)
-  align/   continue/   handoff/
-  next-issue/  plan-issues/  ship/
-codex/prompts/         # Codex prompt mirror (6 verbs)
-docs/                  # planmode-probe, api-drift-detection, relay-lessons
-README.md              # this file
-LICENSE                # MIT
+skills/                  Canonical Claude skill source (one dir per step)
+  align/  continue/  handoff/  next-issue/  plan-issues/  ship/
+codex/prompts/           Codex prompt mirror (one file per step)
+docs/
+  planmode-probe.md      Empirical findings on host plan-mode behaviour
+  api-drift-detection.md A design note on what is deliberately not built yet
+  relay-lessons.md       What the predecessor experiment taught
+AGENTS.md                Canonical project instructions
+CLAUDE.md                @AGENTS.md (one line)
+LICENSE                  MIT
 ```
+
+There is no separate runtime to install. The steps are skills or
+prompts, invoked the way every other skill or prompt is.
+
+## Getting started
+
+The canonical install is to point an agent's skills/prompts at this
+repo directly:
+
+**Claude Code.** Copy or symlink `skills/` into your project's
+`.claude/skills/` directory. Alternatively, install the `workflow`
+plugin from the
+[claude\_code\_plugins](https://github.com/stefan-jansen/coding-agent-plugins)
+marketplace, which mirrors these skills.
+
+**OpenAI Codex.** Point your prompts directory at `codex/prompts/`, or
+copy the files in.
+
+The steps are meant to be invoked in order on a new feature
+(`/align`, `/plan`, `/plan-issues`, `/next-issue`, `/ship`) and at the
+boundaries of long-running work (`/handoff` and `/continue`). The
+`SKILL.md` file in each `skills/<step>/` directory is the
+authoritative documentation for that step.
+
+## Background
+
+The toolkit grew out of two earlier projects:
+
+- **[relay](docs/relay-lessons.md)** was a Python CLI that tried to
+  orchestrate Claude Code and Codex as subprocess backends from the
+  outside. Its verb chain and the GitHub-as-projection convention
+  survived; the orchestrator-from-outside premise did not. The full
+  post-mortem is in `docs/relay-lessons.md`.
+- **[claude-code-toolkit](https://github.com/stefan-jansen/claude-code-toolkit)**
+  is a broader collection of Claude Code patterns and plugins. This
+  toolkit is narrower — six steps, two hosts, one job.
+
+It is a sibling, not a competitor, to
+[roborev](https://github.com/kenn-io/roborev): roborev reviews code,
+this toolkit drives work. The two compose, and the roborev integration
+above is what that composition looks like in practice.
+
+## Status and contributing
+
+Pre-1.0. The step contracts are stable enough to use daily, but their
+shape may still shift in response to friction surfaced in real work.
+Issues and PRs welcome — the
+[planmode-probe](docs/planmode-probe.md) and
+[api-drift-detection](docs/api-drift-detection.md) notes are the best
+starting point for understanding the design choices.
 
 ## License
 
-MIT (see [`LICENSE`](LICENSE)).
+MIT — see [`LICENSE`](LICENSE).
