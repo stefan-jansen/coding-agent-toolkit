@@ -152,6 +152,30 @@ when the branch has no open reviews, or when the review daemon doesn't
 respond within half a second — so it costs nothing when you don't use
 it.
 
+Turning it on takes two steps, and the first is enough on its own:
+
+1. **Install roborev.** Follow the
+   [roborev](https://github.com/kenn-io/roborev) instructions; the check
+   keys off the `roborev` binary being on your `PATH`. That alone is
+   enough for `continue` to surface open reviews — no further
+   configuration, on either host.
+2. **Enable the session-start summary (Claude Code only).** Enable the
+   `roborev` plugin from the
+   [claude\_code\_plugins](https://github.com/stefan-jansen/coding-agent-plugins)
+   marketplace by adding it to your project's `.claude/settings.json`:
+
+   ```json
+   {
+     "enabledPlugins": {
+       "roborev@local": true
+     }
+   }
+   ```
+
+   Its `SessionStart` hook prints a single line when the current branch
+   has open reviews and stays silent otherwise. Codex has no equivalent
+   session-start hook; there, `continue` is the surfacing point.
+
 ## Repository layout
 
 ```
@@ -201,7 +225,7 @@ The toolkit grew out of two earlier projects:
   post-mortem is in `docs/relay-lessons.md`.
 - **[claude-code-toolkit](https://github.com/stefan-jansen/claude-code-toolkit)**
   is a broader collection of Claude Code patterns and plugins. This
-  toolkit is narrower — six steps, two hosts, one job.
+  toolkit is narrower — seven steps, two hosts, one job.
 
 It is a sibling, not a competitor, to
 [roborev](https://github.com/kenn-io/roborev): roborev reviews code,
