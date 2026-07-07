@@ -75,6 +75,10 @@ git log --oneline -3                       # most recent: <sha>
 ls skills/                                 # expect: align next-issue plan-issues ship handoff continue
 ```
 
+Beyond those durable artifacts, the snapshot MUST include a fixed
+staleness floor — current branch, uncommitted tree, open issue, and
+last-test-at-`<sha>`. See "Mandatory snapshot floor" below.
+
 ## Current state (cold-read map)
 
 <Subsections for each artifact line:>
@@ -171,6 +175,34 @@ by design and will show benign false-positive drift on the first
 `/continue` replay if the next session lands in a new hour. If a
 transition file matters as evidence, cite it by content in "Important
 context," not as a `ls` target in the snapshot.
+
+### Mandatory snapshot floor
+
+Durable artifacts tell the next agent what the work *is*; these four
+tell it whether the ground has moved. They are the states most likely
+to make two sessions continue from different truths, so they are
+required in every snapshot — not left to judgment:
+
+```bash
+git branch --show-current                  # expect: <branch>
+git status --porcelain                     # expect: <empty | known-dirty paths>
+gh issue list --milestone '<M>' --state open --json number,title  # expect: #<n> <title>, …
+git rev-parse --short HEAD                  # expect: <sha>  (last test: `<cmd>` green at this sha)
+```
+
+- **branch** and **uncommitted tree** are read-only and re-checked live
+  by `/continue`.
+- **open issue** anchors which work is still in flight.
+- **last test** is *recorded, not re-run* — tests aren't read-only and
+  can be slow. Pin the last command you ran, its result, and the `<sha>`
+  it was valid for onto the `HEAD` line. `/continue` compares that sha
+  to current `HEAD`: unchanged → the recorded result still holds;
+  drifted → the next agent knows to re-run before trusting it.
+
+If one of the four genuinely doesn't apply — a non-git deliverable, or
+a work unit with no test surface — say so in the comment rather than
+dropping the line. An absent check reads as "not checked," which is the
+exact ambiguity this floor removes.
 
 ### Current state map
 

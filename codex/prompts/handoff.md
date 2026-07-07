@@ -64,6 +64,23 @@ The cold-start commands MUST:
   drift on the first `/continue` replay if the next session lands in
   a new hour. Cite transition files by content in "Important context"
   instead, never as a `ls` target.
+- **include a mandatory staleness floor** — durable artifacts say what
+  the work *is*; these four say whether the ground moved, so every
+  snapshot MUST carry them, not leave them to judgment:
+
+  ```bash
+  git branch --show-current                  # expect: <branch>
+  git status --porcelain                     # expect: <empty | known-dirty paths>
+  gh issue list --milestone '<M>' --state open --json number,title  # expect: #<n> <title>, …
+  git rev-parse --short HEAD                  # expect: <sha>  (last test: `<cmd>` green at this sha)
+  ```
+
+  branch + uncommitted tree are re-checked live; open issue anchors
+  what's in flight; last test is RECORDED not re-run (tests aren't
+  read-only) — pin the command, result, and valid-for `<sha>` onto the
+  HEAD line so `/continue` flags a re-run once HEAD has moved. If one
+  doesn't apply (non-git deliverable, no test surface), say so in the
+  comment rather than dropping the line.
 
 Example:
 
