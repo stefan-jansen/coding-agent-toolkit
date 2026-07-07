@@ -68,7 +68,7 @@ loses the structured plan-mode output.
 | Surface | Location | Contents |
 |---|---|---|
 | Canonical | `skills/<step>/SKILL.md` here | Source of truth. |
-| Claude plugin mirror | `workflow/skills/<step>/SKILL.md` in the [claude\_code\_plugins](https://github.com/stefan-jansen/coding-agent-plugins) marketplace | Byte-identical mirror; how Claude users install. |
+| Claude plugin mirror | `workflow/skills/<step>/SKILL.md` in the [coding-agent-plugins](https://github.com/stefan-jansen/coding-agent-plugins) marketplace | Byte-identical mirror; how Claude users install. |
 | Codex prompt | `codex/prompts/<step>.md` here | Codex-shape mirror; `codex exec` invokes by name. |
 
 When you edit a step, edit all three. Verify byte-identity between
