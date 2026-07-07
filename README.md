@@ -161,7 +161,7 @@ Turning it on takes two steps, and the first is enough on its own:
    configuration, on either host.
 2. **Enable the session-start summary (Claude Code only).** Enable the
    `roborev` plugin from the
-   [claude\_code\_plugins](https://github.com/stefan-jansen/coding-agent-plugins)
+   [coding-agent-plugins](https://github.com/stefan-jansen/coding-agent-plugins)
    marketplace by adding it to your project's `.claude/settings.json`:
 
    ```json
@@ -202,7 +202,7 @@ repo directly:
 **Claude Code.** Copy or symlink `skills/` into your project's
 `.claude/skills/` directory. Alternatively, install the `workflow`
 plugin from the
-[claude\_code\_plugins](https://github.com/stefan-jansen/coding-agent-plugins)
+[coding-agent-plugins](https://github.com/stefan-jansen/coding-agent-plugins)
 marketplace, which mirrors these skills.
 
 **OpenAI Codex.** Point your prompts directory at `codex/prompts/`, or
