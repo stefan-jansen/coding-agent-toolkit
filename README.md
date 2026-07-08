@@ -44,7 +44,7 @@ handoff / continue — at any session, host, or day boundary
 
 | Step | Does |
 |---|---|
-| `align` | Interrogates the request into `spec.md`, a verifiable end-state — one question at a time, or seeded from a brief and asking only what the brief left open. |
+| `align` | Surveys the codebase / prior work read-only, then interrogates you into `spec.md` — a verifiable end-state aligned to both your intent and what already exists. Seed it from a brief and it asks only what the brief left open. |
 | `plan` | Breaks the spec into issue-sized chunks with dependencies (`plan.md`), using the host's native plan mode. |
 | `plan-issues` | Creates a GitHub milestone and one issue per chunk. Dry-run by default; `--apply` to write. |
 | `next-issue` | Takes the lowest-numbered open issue in the active milestone → branch, implementation, tests, PR. |
