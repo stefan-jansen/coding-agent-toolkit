@@ -1,6 +1,6 @@
 # Spec: <one-line objective>
 
-> Relay ALIGN artifact. WHAT/WHY end-state — never HOW. Durable contract; the
+> ALIGN artifact. WHAT/WHY end-state — never HOW. Durable contract; the
 > `plan` step decomposes this into milestones/issues without asking the user
 > anything. Every section must be verifiable. No TODO/??? placeholders.
 
@@ -37,9 +37,20 @@ tech, interop requirements.>
 
 - ...
 
+## Environment / prior art
+
+<What already exists that this should build on, extend, or match — surfaced by
+the align explore phase. Relevant modules, prior deliverables of the same kind,
+conventions, reference material. Cite specifics (paths, names) so the plan step
+inherits the context instead of re-discovering it.>
+
+- ...
+
 ## Existing surface (must not break)
 
-<What this touches and what must keep working. Files, APIs, workflows, contracts.>
+<What this touches and what must keep working — verified against the actual
+environment during the explore phase, not just recalled by the user. Files,
+APIs, workflows, contracts.>
 
 - ...
 

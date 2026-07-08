@@ -7,9 +7,15 @@ same `spec.md`.
 
 ---
 
-Run the ALIGN step. Extract a complete, verifiable specification of the desired
+Run the ALIGN step. Produce a complete, verifiable specification of the desired
 end-state — the WHAT and WHY, never the HOW — and write it to `spec.md` in the
 work unit the user names (under `.workspace/work/`).
+
+Alignment has two sides and the spec reflects both: **intent** (what the user
+wants — extracted by forceful interrogation) and **reality** (what the
+environment already is — extracted by exploring first, read-only). A spec
+aligned on intent but blind to reality plans against a world that doesn't
+exist. Explore, then interrogate, then write.
 
 A separate headless `plan` step will turn this spec into milestones and issues and
 **must not need to ask the user anything**, so kill every ambiguity now.
@@ -34,6 +40,22 @@ any state-mutating `gh` command. This applies even if the sandbox would
 allow it. Implementation is `/next-issue`'s job — `/align` only produces
 the spec contract.
 
+## Explore first (read-only)
+
+Before interrogating, survey the terrain — this is the environment half of the
+old `explore` step, run as homework, not a gentle wander. READ / grep / list
+widely (required), but the write guard above still holds absolutely: no edits,
+no test/build/format runs, no mutating git / `gh`. Survey what the deliverable
+needs — for code: repo layout, the modules/tests this touches, existing
+implementations of the same shape, conventions, and project instructions
+(`AGENTS.md` / `CLAUDE.md`, `.workspace/memory/`); for non-code: prior work of
+the same kind, reference material, house style. Use the findings two ways:
+(1) ask evidence-based questions ("you already have X doing Y — extend or
+replace?") instead of cold ones, and (2) if the request collides with what
+exists, raise it first. Fill Existing surface / Constraints / Environment from
+what you found, not from asking the user to recall it. Brief mode explores too —
+a brief states intent, not reality.
+
 Rules:
 - Ask **one question at a time**. React to each answer before asking the next.
 - **Challenge vague answers.** Do not accept anything you couldn't write a pass/fail
@@ -53,8 +75,10 @@ Write `<work-unit>/spec.md` with these sections, every one filled with verifiabl
 content (no TODO/??? placeholders):
 
 Objective · Why · Acceptance criteria (numbered, each verifiable) · In scope ·
-Out of scope (≥1 exclusion) · Constraints · Existing surface (must not break) ·
-Open questions (each with a decision rule + owner, or marked deferred).
+Out of scope (≥1 exclusion) · Constraints · Environment / prior art (what to
+build on, from the explore phase) · Existing surface (must not break — verified,
+not just recalled) · Open questions (each with a decision rule + owner, or
+marked deferred).
 
 Finish by telling the user: spec is written. Next step is `/plan` — run
 `codex exec --sandbox read-only --output-schema <plan.schema.json> "decompose @<work-unit>/spec.md"`
