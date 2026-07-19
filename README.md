@@ -57,21 +57,52 @@ issue, and the last issue closing closes the milestone. GitHub is the
 state machine; the file each step writes on disk is the contract the next
 step (or the next agent) reads instead of re-deriving state.
 
+## How this relates to coding-agent-plugins
+
+Two repos, one system — this trips people up, so plainly:
+
+- **coding-agent-toolkit** (this repo) is the **workflow** — the seven steps,
+  their documentation, the canonical Claude skill sources, and the Codex prompt
+  mirror. It is host-neutral: the same steps on Claude Code and Codex.
+- **[coding-agent-plugins](https://github.com/stefan-jansen/coding-agent-plugins)**
+  is **how Claude Code installs it** — a plugin marketplace where these steps
+  ship as the `workflow` plugin, alongside optional plugins you'll want
+  (`setup` to bootstrap projects, `memory`, `transition`, `roborev`, and more).
+
+You don't choose between them. On Claude Code you install the toolkit *through*
+the marketplace; on Codex you use the prompt mirror directly. The installer
+below wires both up for you.
+
 ## Quick start
 
-**Claude Code** — copy or symlink `skills/` into your project's
-`.claude/skills/`, or install the `workflow` plugin from the
-[coding-agent-plugins](https://github.com/stefan-jansen/coding-agent-plugins)
-marketplace, which mirrors these skills.
+**One command, once per machine:**
 
-**OpenAI Codex** — point your prompts directory at `codex/prompts/`, or
-copy the files in.
+```bash
+git clone https://github.com/stefan-jansen/coding-agent-toolkit.git
+cd coding-agent-toolkit && ./install.sh
+```
 
-Then invoke the steps in order on a new piece of work —
-`/align`, `/plan`, `/plan-issues`, `/next-issue`, `/ship` — and
-`/handoff` / `/continue` at the boundaries of long-running work. The
-`SKILL.md` in each `skills/<step>/` directory is that step's
-authoritative documentation. There is no separate runtime to install.
+`install.sh` finds or clones the plugins marketplace, registers it in your
+**user-level** `~/.claude/settings.json`, and enables the core plugins
+(`setup`, `workflow`, `transition`, `memory`) globally. Because they're enabled
+at user level, the steps are available in **every** project — including a
+brand-new empty folder — with nothing to copy in per project. (It merges
+non-destructively and backs up your settings first; re-run any time. Needs
+`git` and `jq`. If `~/.codex/` exists it also links the Codex prompts.)
+
+**Then, in any project:**
+
+```bash
+/setup      # bootstrap this folder: .workspace/ + AGENTS.md (interview-driven)
+/align      # start a piece of work; then /plan → /plan-issues → /next-issue → /ship
+/handoff    # at a session/host/day boundary; resume with /continue
+```
+
+**Without the installer (manual / Claude-only):** copy or symlink `skills/`
+into a project's `.claude/skills/`, or enable the `workflow` plugin from the
+marketplace yourself. **Codex:** point your prompts directory at
+`codex/prompts/`. The `SKILL.md` in each `skills/<step>/` directory is that
+step's authoritative documentation — there is no separate runtime to install.
 
 ## Cross-agent state
 
@@ -139,6 +170,8 @@ docs/
   planmode-probe.md      Empirical findings on host plan-mode behaviour
   api-drift-detection.md A design note on what is deliberately not built yet
   relay-lessons.md       What the predecessor experiment taught
+install.sh               One-time system installer (registers the marketplace,
+                         enables core plugins at user level)
 AGENTS.md                Canonical project instructions
 CLAUDE.md                @AGENTS.md (one line)
 LICENSE                  MIT
