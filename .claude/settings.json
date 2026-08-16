@@ -2,7 +2,6 @@
   "$comment": "Self-hosted toolkit settings. Assumes the plugin marketplace is registered at user level via ~/.claude/settings.json — run ./install.sh (see README '## Quick start'). Plugins bring their own hooks; nothing needs registering here.",
   "enabledPlugins": {
     "workflow@local": true,
-    "transition@local": true,
     "memory@local": true,
     "roborev@local": true
   },
