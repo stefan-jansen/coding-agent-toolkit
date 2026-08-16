@@ -1,6 +1,6 @@
 ---
 name: delegate
-description: This skill should be used when the user asks to "message another session", "ask the other agent", "delegate to a peer session", "coordinate with the session in my other pane/worktree", "tell the <name> session ...", "check on the migration/test run in the other terminal", or runs `/delegate`. Covers how to discover, address, message, and monitor your other Claude Code sessions with ListAgents / SendMessage. Claude-only (Codex has no equivalent).
+description: This skill should be used when the user asks to "message another session", "ask the other agent", "delegate to a peer session", "coordinate with the session in my other pane/worktree", "tell the <name> session ...", "check on the migration/test run in the other terminal", "see what the <name> session is doing", "inspect/peek at another session's context or transcript", "find a session's transition/handoff file", or runs `/delegate`. Covers how to discover, address, message, and monitor your other Claude Code sessions with ListAgents / SendMessage, and how to resolve a peer's transcript JSONL + latest transition file on disk. Claude-only (Codex has no equivalent).
 user-invocable: true
 ---
 
@@ -100,6 +100,33 @@ as a new turn if you're idle). You don't poll a mailbox — continue working and
 handle the reply when it lands. For a long-running peer (a migration, a test
 run), send the ask, keep doing other work, and the report comes back on its own.
 If you need to block on it, say so to the user rather than busy-waiting.
+
+## Inspect a peer's context (you can't do this by messaging)
+
+Messaging can't read another session's context — a message carries only its
+text. To see what a peer has actually been doing, resolve the two artifacts it
+leaves on disk with the bundled helper (beside this SKILL.md):
+
+```bash
+resolve-session.sh --pane %177            # transcript + latest transition
+resolve-session.sh --cwd ~/ml4t/agents --transcript --tail 10
+```
+
+Take the `%NNN` tmux pane id from the target's `location` in the `ListAgents`
+listing and pass it as `--pane`; for a `bg` session (no pane) pass `--cwd`. It
+prints the transcript JSONL path + session id + the last N user turns, and the
+newest transition file + its head. From there:
+
+- **Latest transition file** — the peer's own structured summary of state
+  (auto-written on compact / at session end, or by `/handoff`). Start here: it's
+  small and purpose-built for resume.
+- **Transcript JSONL** — the complete raw log (large, verbose). Read it only
+  when the transition isn't enough; grep it rather than loading the whole thing.
+- **To take over the peer's full context**, resume it (`claude --resume
+  <session-id>`) using the session id the helper prints — a takeover, not
+  concurrent observation.
+
+Reads only; it never messages or writes.
 
 ## Why a message didn't arrive
 
