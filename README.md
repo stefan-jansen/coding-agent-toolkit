@@ -51,6 +51,7 @@ handoff / continue — at any session, host, or day boundary
 | `ship` | Squash-merges the PR and closes the milestone, after verifying every issue has a closing-footer commit. |
 | `handoff` | Writes a transition file: prose summary plus a bash snapshot of read-only checks with inline `# expect:` values. |
 | `continue` | Replays a transition's snapshot, flags any drift, and surfaces next steps and open code reviews. Never auto-executes. |
+| `delegate` | Coordinate your other Claude Code sessions over `ListAgents` / `SendMessage`: discover peers, address the right one, send an actionable message, monitor the reply. Claude-only (Codex has no cross-session messaging), so it ships no `codex/prompts/` mirror. |
 
 `Closes #N` in PR bodies is the bubble-up signal: a merged PR closes its
 issue, and the last issue closing closes the milestone. GitHub is the
