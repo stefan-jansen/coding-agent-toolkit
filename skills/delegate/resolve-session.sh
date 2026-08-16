@@ -7,7 +7,7 @@
 # leaves on disk so you CAN inspect what it has been doing, out of band.
 #
 # Input — identify the target session one of three ways (from a ListAgents row):
-#   --pane %ID     tmux pane id shown in the row's `location` (e.g. %177)
+#   --pane %ID     tmux pane id shown in the row's `location` (the %<id> field)
 #   --pid  PID     the session's claude process id, if you know it
 #   --cwd  PATH    the session's working directory (for bg sessions w/o a pane)
 # Output selectors (default: both):

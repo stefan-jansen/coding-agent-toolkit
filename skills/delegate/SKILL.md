@@ -108,12 +108,13 @@ text. To see what a peer has actually been doing, resolve the two artifacts it
 leaves on disk with the bundled helper (beside this SKILL.md):
 
 ```bash
-resolve-session.sh --pane %177            # transcript + latest transition
-resolve-session.sh --cwd ~/ml4t/agents --transcript --tail 10
+resolve-session.sh --pane %<pane-id>              # transcript + latest transition
+resolve-session.sh --cwd <repo-or-worktree-path> --transcript --tail 10
 ```
 
-Take the `%NNN` tmux pane id from the target's `location` in the `ListAgents`
-listing and pass it as `--pane`; for a `bg` session (no pane) pass `--cwd`. It
+Take the `%`-prefixed pane id from the target row's `location` in the
+`ListAgents` listing (a `location` reads like `tmux <window>:@<w>.%<pane-id>`)
+and pass it as `--pane`; for a `bg` session (no pane) pass `--cwd`. It
 prints the transcript JSONL path + session id + the last N user turns, and the
 newest transition file + its head. From there:
 
