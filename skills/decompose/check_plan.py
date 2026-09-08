@@ -18,13 +18,14 @@ ISSUE = re.compile(r"^\*\*Issue\s+(\d+)\s+(?:-|--|—)\s+(.+?)\*\*\s*$")
 SECTION = re.compile(r"^##\s+\S")
 
 
-def check(path: Path) -> list[str]:
+def check(lines: list[str]) -> list[str]:
     errors: list[str] = []
-    lines = path.read_text().splitlines()
 
     milestones = [(i + 1, m.group(1)) for i, l in enumerate(lines) if (m := MILESTONE.match(l))]
     if not milestones:
-        errors.append("no '### Milestone: `<version> - <title>`' heading found")
+        near = [i + 1 for i, l in enumerate(lines) if l.lstrip().startswith("### Milestone")]
+        where = f" (closest: line {near[0]})" if near else ""
+        errors.append(f"no '### Milestone: `<version> - <title>`' heading found{where}")
     elif len(milestones) > 1:
         where = ", ".join(f"line {n}" for n, _ in milestones)
         errors.append(f"{len(milestones)} milestone headings, expected exactly 1 ({where})")
@@ -39,7 +40,13 @@ def check(path: Path) -> list[str]:
 
     numbers = [n for _, n, _ in issues]
     if numbers != list(range(1, len(numbers) + 1)):
-        errors.append(f"issue numbers are {numbers}, expected 1..{len(numbers)} with no gaps")
+        first_bad = next(
+            (ln for (ln, n, _), want in zip(issues, range(1, len(numbers) + 1)) if n != want),
+            issues[0][0],
+        )
+        errors.append(
+            f"line {first_bad}: issue numbers are {numbers}, expected 1..{len(numbers)} with no gaps"
+        )
 
     if milestones:
         m_line = milestones[0][0]
@@ -72,15 +79,19 @@ def main() -> int:
     if not path.is_file():
         print(f"check_plan: no such file: {path}", file=sys.stderr)
         return 2
+    try:
+        lines = path.read_text().splitlines()
+    except OSError as exc:
+        print(f"check_plan: cannot read {path}: {exc}", file=sys.stderr)
+        return 2
 
-    errors = check(path)
+    errors = check(lines)
     if errors:
         print(f"check_plan: FAIL {path}", file=sys.stderr)
         for e in errors:
             print(f"  {e}", file=sys.stderr)
         return 1
 
-    lines = path.read_text().splitlines()
     milestone = next(m.group(1) for l in lines if (m := MILESTONE.match(l)))
     count = sum(1 for l in lines if ISSUE.match(l))
     print(f"check_plan: OK {path}")
