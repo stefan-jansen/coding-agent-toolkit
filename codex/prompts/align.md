@@ -17,7 +17,7 @@ environment already is — extracted by exploring first, read-only). A spec
 aligned on intent but blind to reality plans against a world that doesn't
 exist. Explore, then interrogate, then write.
 
-A separate headless `plan` step will turn this spec into milestones and issues and
+A separate headless `decompose` step will turn this spec into milestones and issues and
 **must not need to ask the user anything**, so kill every ambiguity now.
 
 ## Entry modes
@@ -80,7 +80,9 @@ build on, from the explore phase) · Existing surface (must not break — verifi
 not just recalled) · Open questions (each with a decision rule + owner, or
 marked deferred).
 
-Finish by telling the user: spec is written. Next step is `/plan` — run
-`codex exec --sandbox read-only --output-schema <plan.schema.json> "decompose @<work-unit>/spec.md"`
-(or, on a Claude session, enter plan mode with the same spec). The plan step
-must not need to ask the user anything — if it does, return to align.
+Finish by telling the user: spec is written. Next step is `/decompose`, which
+turns this spec into `<work-unit>/plan.md` (the prompt is in
+`~/.codex/prompts/decompose.md`; a Claude session runs the same step as the
+`decompose` skill; it is not called `/plan` because on Claude Code that prefix
+enters built-in plan mode). The plan step must not need to ask the user anything - if it does,
+return to align.

@@ -7,7 +7,7 @@ user-invocable: true
 # plan-issues — project the plan onto GitHub
 
 You are running the **PLAN-ISSUES** step of the workflow. Your job is to
-turn the durable `plan.md` (produced by the headless `plan` step) into a GitHub
+turn the durable `plan.md` (produced by the headless `decompose` step) into a GitHub
 **milestone + one issue per planned issue**, so that subsequent `/next` work
 units can be traced 1:1 to a closed issue.
 
@@ -35,27 +35,35 @@ If `--repo` is omitted, **stop and ask**. Never guess the repo.
 
 ## What "Issue N" looks like in plan.md
 
-The convention (see `align`'s sibling `plan` step) produces headings of
-the form:
+The `decompose` step produces this shape, and validates it with
+`../decompose/check_plan.py` before handing off:
 
 ```
-### Milestone: `<version> — <title>`
+### Milestone: `<version> - <title>`
 
-**Issue 1 — <issue title>**
+**Issue 1 - <issue title>**
 
-<one or more paragraphs of body — files, tests, acceptance>
+<one or more paragraphs of body: files, tests, acceptance>
 
-**Issue 2 — <issue title>**
+**Issue 2 - <issue title>**
 
 <body>
 ```
 
+Run the same check before parsing, so a malformed plan fails here with a line
+number rather than halfway through creating issues:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/decompose/check_plan.py" <plan-path>
+```
+
 Parsing rules:
 
-- The **milestone** is the first `### Milestone: \`X — Y\`` line. The full
-  backticked string (`X — Y`) is the milestone title.
-- An **issue heading** matches `^\*\*Issue\s+(\d+)\s+—\s+(.+?)\*\*\s*$` —
-  capture the number and the title. (Both em-dash and ASCII `--` accepted.)
+- The **milestone** is the first `### Milestone: \`X - Y\`` line. The full
+  backticked string (`X - Y`) is the milestone title.
+- An **issue heading** matches `^\*\*Issue\s+(\d+)\s+(?:-|--|—)\s+(.+?)\*\*\s*$`:
+  capture the number and the title. A plain dash is the convention; `--` and an
+  em dash also parse.
 - An issue's **body** is every line after its heading up to (but not
   including) the next `**Issue N —`, the next top-level heading `## `, or EOF.
   Trim leading/trailing blank lines.

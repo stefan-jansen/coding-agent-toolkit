@@ -1,7 +1,7 @@
 # Spec: <one-line objective>
 
 > ALIGN artifact. WHAT/WHY end-state — never HOW. Durable contract; the
-> `plan` step decomposes this into milestones/issues without asking the user
+> `decompose` step decomposes this into milestones/issues without asking the user
 > anything. Every section must be verifiable. No TODO/??? placeholders.
 
 ## Objective

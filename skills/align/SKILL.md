@@ -1,6 +1,6 @@
 ---
 name: align
-description: This skill should be used at the START of any non-trivial work unit, when the user asks to "align", "spec this out", "define the work", or before planning/implementing. Forcefully interrogates the user (or seeds the spec from a brief/RFC if invoked as `/align @brief.md`) to produce a complete spec.md (WHAT/WHY end-state) that the headless `plan` step can consume without further questions.
+description: This skill should be used at the START of any non-trivial work unit, when the user asks to "align", "spec this out", "define the work", or before planning/implementing. Forcefully interrogates the user (or seeds the spec from a brief/RFC if invoked as `/align @brief.md`) to produce a complete spec.md (WHAT/WHY end-state) that the headless `decompose` step can consume without further questions.
 user-invocable: true
 ---
 
@@ -21,7 +21,7 @@ Alignment has two sides, and the spec must reflect both:
 A spec aligned on intent but blind to reality plans against a world that
 doesn't exist. Explore, then interrogate, then write.
 
-The spec is the durable contract. A separate, headless `plan` step turns it into
+The spec is the durable contract. A separate, headless `decompose` step turns it into
 milestones/issues later and **must not need to ask the user anything** — so every
 ambiguity has to die here. The plan step is only as good as the spec you produce.
 
@@ -174,8 +174,9 @@ Write `<work-unit>/spec.md` using `spec-template.md` (sibling file) as the struc
 Fill every section. Leave NO `TODO`/`???` placeholders — if something is truly
 undecided, state the decision rule and put it under **Open Questions** with an owner.
 
-End by telling the user: spec is written. Next step is `/plan` — enter Claude's
-plan mode (or, for Codex, run `codex exec --sandbox read-only --output-schema
-<plan.schema.json> "decompose @<work-unit>/spec.md"`) to produce
-`<work-unit>/plan.md`. The plan step must not need to ask the user anything —
-if it does, the spec was incomplete and we come back here.
+End by telling the user: spec is written. Next step is `/decompose`, which turns
+this spec into `<work-unit>/plan.md`. Both hosts run the same step from the same
+file: Claude Code invokes the `decompose` skill, Codex runs `/decompose` from
+`~/.codex/prompts/decompose.md`. It is not called `/plan` because on Claude Code
+that prefix enters built-in plan mode. The plan step must not need to ask the user
+anything - if it does, the spec was incomplete and we come back here.
