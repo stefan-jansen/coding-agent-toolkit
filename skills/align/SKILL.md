@@ -1,6 +1,6 @@
 ---
 name: align
-description: This skill should be used at the START of any non-trivial work unit, when the user asks to "align", "spec this out", "define the work", or before planning/implementing. Forcefully interrogates the user (or seeds the spec from a brief/RFC if invoked as `/align @brief.md`) to produce a complete spec.md (WHAT/WHY end-state) that the headless `decompose` step can consume without further questions.
+description: 'Start of a non-trivial work unit, before planning or implementing: "align", "spec this out", "define the work", or `/align` (optionally `/align @brief.md`). Interrogates the user into a complete spec.md.'
 user-invocable: true
 ---
 

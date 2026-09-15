@@ -1,6 +1,6 @@
 ---
 name: continue
-description: This skill should be used when the user says "continue from <transition-file>", asks to "resume from the last handoff", "pick up where we left off", or runs `/continue`. Reads a transition file written by `/handoff`, runs its verification snapshot, reports drift, and surfaces the suggested next steps WITHOUT auto-executing. Host-neutral.
+description: '"continue from <transition-file>", "resume from the last handoff", "pick up where we left off", or `/continue`. Resumes from a `/handoff` transition file and reports drift without auto-executing.'
 user-invocable: true
 ---
 

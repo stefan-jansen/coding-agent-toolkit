@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: This skill should be used when the user asks to "write a handoff", "produce a transition", "record where we are for the next session", "write a digest before /clear", or runs `/handoff`. Writes a durable transition file at `.workspace/transitions/YYYY-MM-DD/HHMMSS.md` that any future session on either host (Claude or Codex) can pick up cold via `/continue`. Host-neutral.
+description: '"write a handoff", "produce a transition", "record where we are for the next session", "write a digest before /clear", or `/handoff`. Writes a transition file any later Claude or Codex session resumes from via `/continue`.'
 user-invocable: true
 ---
 

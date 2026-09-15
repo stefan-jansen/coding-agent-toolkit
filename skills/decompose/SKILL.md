@@ -1,6 +1,6 @@
 ---
 name: decompose
-description: This skill should be used after `/align` has written a spec.md, when the user asks to "plan this", "decompose the spec", "break this into issues", or runs `/decompose`. Note that `/plan` is Claude Code's built-in plan-mode prefix and does NOT reach this step. Turns spec.md into a plan.md of milestone + numbered issues in the exact shape `/plan-issues` parses. Never asks the user questions.
+description: 'After `/align` wrote spec.md: "plan this", "decompose the spec", "break this into issues", or `/decompose`. Produces the plan.md that `/plan-issues` parses. Claude Code''s built-in `/plan` prefix does NOT reach this step.'
 user-invocable: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: plan-issues
-description: This skill should be used after a `plan.md` exists in an active work unit, when the user asks to "create the issues", "open the GitHub issues from the plan", "materialize issues", or runs `/plan-issues`. Parses `plan.md`, creates the milestone, and opens one GitHub issue per `**Issue N — <title>**` heading. Default is dry-run; pass `--apply` to actually create.
+description: 'After a plan.md exists: "create the issues", "open the GitHub issues from the plan", "materialize issues", or `/plan-issues`. Creates the milestone and one issue per plan entry. Dry-run unless --apply.'
 user-invocable: true
 ---
 
