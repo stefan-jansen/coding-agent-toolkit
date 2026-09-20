@@ -114,8 +114,9 @@ Codex discovered this unprompted during the 0.3.0 dogfood ship.
    → expect `[]`. Any still open → close manually with
    `gh issue close <N> --reason completed --comment "Shipped in <MERGE_SHA>"`
    and note a backlog entry about the missing footer.
-2. `git fetch origin && git log -1 origin/<default> --format='%H %s'` → expect
-   the merge commit.
+2. `git fetch "$GH_REMOTE" && git log -1 "$GH_REMOTE"/<default> --format='%H %s'` → expect
+   the merge commit. `GH_REMOTE` is the github.com remote (`origin` may be a
+   local bare mirror; resolve as in `/next-issue`).
 3. If user is on the deleted feature branch locally:
    `git switch <default> && git pull --ff-only && git branch -D <feature>`.
 

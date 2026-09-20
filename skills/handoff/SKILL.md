@@ -12,7 +12,8 @@ the shared `.workspace/transitions/` tree so any future session on either
 host can resume without re-deriving context.
 
 This step is **host-neutral**: same contract on Claude and Codex. The shared
-`.workspace/` directory is the host-swap primitive (see backlog #8) —
+`.workspace/` directory is the host-swap primitive (see the toolkit backlog in
+`.workspace/memory/history.md`) —
 there is no "execute as the other host" verb because the durable state is
 what makes the swap work, not orchestration.
 

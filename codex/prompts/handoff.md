@@ -22,7 +22,8 @@ Parse from the user's invocation (any order):
 - `--dry-run` — print to stdout instead of writing.
 
 **Always write under `.workspace/transitions/`** — the shared path is
-load-bearing for cross-host continuation (backlog #8). Never
+load-bearing for cross-host continuation (see the toolkit backlog in
+`.workspace/memory/history.md`). Never
 `.codex/transitions/` or `.claude/transitions/`.
 
 ## File structure (mandatory)

@@ -43,12 +43,36 @@ gh issue list --repo <owner>/<repo> --milestone "<title>" --state open \
 ```
 
 If `--issue <N>` given, fetch that one and verify it's in the milestone + open.
+If its `Closes #N` footer is ALREADY in the branch's commits, it has shipped;
+skip it rather than re-implementing (issues stay open until the PR merges).
+
+**Skip already-shipped issues when picking the next one.** "Lowest-numbered
+open" otherwise points at work already on the branch:
+
+```bash
+git log --format=%B "<branch>" | grep -qE "^Closes #<N>\.?$"   # -> shipped, skip
+```
+
+If every open issue is already on the branch, say so and point at `/ship`.
+
+## Remotes — the GitHub remote is NOT always `origin`
+
+Resolve it once and use it for every fetch/push:
+
+```bash
+GH_REMOTE=$(git remote -v | awk '/github\.com[:/]/ {print $1; exit}')
+[ -n "$GH_REMOTE" ] || { echo "no git remote points at github.com" >&2; exit 1; }
+```
+
+Some repos keep `origin` as a LOCAL BARE MIRROR and point `github` at the real
+repo. A hardcoded `git push origin` then "succeeds" against the mirror and only
+fails later, when the PR cannot be opened.
 
 ## Branch (one PR per milestone, one commit per issue)
 
 1. Look up an existing PR for this milestone:
    `gh pr list --state open --json number,headRefName,milestone --jq '.[] | select(.milestone.title == "<title>")'`
-2. If found → `git fetch origin <headRefName>` + `git switch <headRefName>`.
+2. If found → `git fetch "$GH_REMOTE" <headRefName>` + `git switch <headRefName>`.
 3. Else → derive `feat/<milestone-slug>` (lowercase, non-alphanum → `-`,
    trim). `git switch -c <branch>` from the default branch.
 
@@ -84,6 +108,31 @@ Closes #<N>.
 fires at PR merge to the default branch. On a feature branch the issue stays
 open. Do NOT `gh issue close` manually — the closing trace happens at merge.
 
+## Acceptance that needs a real run
+
+Some issues can only be accepted by evidence the agent cannot produce — a CI log,
+a scheduled job, a production run. Do not paper over that:
+
+1. **Split it.** Pin in tests what IS testable (arithmetic, wiring, the coupling
+   between files) and say which half is pinned and which is owed. A test asserting
+   the numbers is real evidence; it does not stand in for the run.
+2. **State the gap plainly.** What the acceptance asks for, why you cannot produce
+   it, and what would. "Not yet evidenced" is complete; "done" is not.
+3. **Name the trigger and its side effects.** Already scheduled (say when), or an
+   exact dispatch command plus expected runtime and what it mutates — cost, stores
+   written, whether it commits to the default branch.
+4. **Never close the issue on the code alone.** A merge does not make an unrun
+   acceptance pass.
+5. **When authorised to dispatch, verify the ref.** A dispatch with no explicit
+   ref runs the DEFAULT branch — pre-merge code — reporting on old behaviour while
+   looking like a green light for the new. Check `head_sha` before reading
+   anything into the result:
+
+```bash
+gh workflow run <wf>.yml --ref <branch> -f <inputs...>
+gh api repos/<owner>/<repo>/actions/runs/<id> --jq '.head_branch, .head_sha'
+```
+
 ## Push + PR
 
 **Use shell `git` and `gh` only.** Do NOT call `codex_apps` / GitHub
@@ -94,13 +143,33 @@ Connector preference is a documented Codex behaviour that the
 orchestration prompt must explicitly suppress.
 
 ```bash
-git push -u origin <branch>     # first push
-git push                        # subsequent
+git push -u "$GH_REMOTE" <branch>   # first push — NAME THE REMOTE
+git push                            # subsequent
+```
+
+Link the PR to the milestone — `gh pr create` does not do it. Use the ISSUES
+endpoint with a JSON body; `PATCH /pulls/<n> -F milestone=<n>` returns 200 and
+applies nothing:
+
+```bash
+gh api -X PATCH "/repos/<owner>/<repo>/issues/<num>" --input - <<< '{"milestone": <n>}'
 ```
 
 If no PR yet, open a draft PR with body listing all milestone issues as a
 checkbox list and tick the just-implemented one. If PR exists, edit its body
 to tick the box for this issue.
+
+**Filter pull requests out when regenerating that checklist.** Once the PR is
+linked to the milestone, the milestone's issue list includes the PR itself, so a
+naive regeneration adds the PR's own number to its own body:
+
+```bash
+gh api "repos/<owner>/<repo>/issues?milestone=<num>&state=all&per_page=30" \
+  --jq '[.[] | select(.pull_request == null)] | sort_by(.number)[]'
+```
+
+Tick by number against the commits on the branch — an issue shipped on the branch
+stays open until the merge, so "still open" does not mean "not done".
 
 To update the body, use the REST API:
 
