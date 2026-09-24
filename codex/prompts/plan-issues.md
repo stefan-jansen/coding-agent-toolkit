@@ -16,15 +16,19 @@ heading. Host-neutral: the verb is `gh`.
 
 Parse from the user's invocation (any order):
 
-- `--repo <owner/name>` — REQUIRED. Target repo.
+- `--repo <owner/name>` — the work unit's repo. Resolve it, do not ask:
+  `gh repo view --json nameWithOwner --jq .nameWithOwner` run inside the work
+  unit. Arguments arrive as free text in practice (there is no flag channel), so
+  a REQUIRED arg is a guaranteed stall. Ask only if that cannot answer, or if the
+  plan spans several repos.
 - `--plan <path>` — defaults to the active work unit's `plan.md`. Walk up from
   cwd to find the most-recently-modified subdirectory of `.workspace/work/`
-  containing a `plan.md`. If ambiguous, ask.
+  containing a `plan.md`. If ambiguous, ask. If NO plan exists and the invocation
+  carried content, author one there in the documented shape and flag it as a
+  transcription of the conversation rather than an approved artifact.
 - `--milestone <title>` — defaults to the milestone heading parsed from `plan.md`.
 - `--apply` — without it, dry-run (print preview, touch nothing).
 - `--branch <name>` — optional. If given, create the branch locally.
-
-If `--repo` is missing, STOP and ask. Never guess.
 
 ## Parse plan.md
 
@@ -93,10 +97,13 @@ plan-issues — APPLIED
   milestone:  #<n> <title>
   issues:     #<a>, #<b>, #<c>, ...
   branch:     <name or "none">
-  next:       /next
+  next:       /next-issue
 ```
 
-Append a one-liner to `.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H).md`:
+Append a one-liner to
+`.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H).md`, after
+`mkdir -p` of that date directory (it only exists if something already wrote
+there today, so the append otherwise fails at the first hour of a new day):
 
 ```markdown
 ## HH:MM - plan-issues materialized

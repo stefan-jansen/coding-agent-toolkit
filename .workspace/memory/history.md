@@ -190,4 +190,88 @@ continuity.
 
 ## Backlog (open)
 
-See [README § Roadmap](../README.md#roadmap). Currently #5, #6, #12.
+Frictions that cost a run something real, one dated line each. This list IS the
+backlog — the old pointer to a `README § Roadmap` resolved to nothing (that
+section does not exist) and to issue numbers that are long closed, so frictions
+went unrecorded.
+
+FIXED means the skill in `skills/` was changed; it is not fixed until the copies
+are re-synced (see `tools/sync-skills.sh`, or the three-path copy above).
+
+- 2026-09-20 — **FIXED** `next-issue` / `plan-issues` / `ship`: the verbs hardcoded
+  `git push origin`, `git fetch origin` and `origin/<default>`, but `origin` is a
+  LOCAL BARE MIRROR in repos that keep a `github` remote (crypto-datawarehouse:
+  `origin` = `~/Claude/Projects/crypto-datawarehouse.git`). A push "succeeds"
+  against the mirror and the failure only appears later as a PR that cannot be
+  opened; `/ship`'s "default branch advanced" check would verify the mirror and
+  prove nothing about GitHub. All three now resolve the github.com remote first.
+- 2026-09-20 — **FIXED** `next-issue`: "lowest-numbered open issue" re-picked an
+  issue already shipped on the branch, because issues stay open until the PR
+  merges under the one-PR-per-milestone convention. Now skips candidates whose
+  `Closes #N` footer is already in the branch's commits.
+- 2026-09-20 — **FIXED** `plan-issues`: `--repo` was `Required: yes`, but the
+  harness passes arguments as free text (`/plan-issues with the findings`), so
+  there is no flag channel and every real invocation stalled on the ask. `--repo`
+  now resolves from the work unit's own remote.
+- 2026-09-20 — **FIXED** `next-issue`: `gh api -X PATCH /pulls/<n> -F milestone=<n>`
+  returns HTTP 200 and applies NOTHING. The PR-to-milestone link needs
+  `PATCH /issues/<n>` with a JSON body. Same silent-write family the skill already
+  warns about for `gh pr edit --body`.
+- 2026-09-20 — **FIXED** both: the closing line pointed at
+  `~/agents/coding/coding-agent-toolkit/README.md`, which is not a path that
+  exists. Frictions now go to this file.
+- 2026-09-20 — **FIXED** both: the transition-file step did not `mkdir -p` the
+  date directory. It only exists if something else wrote there today, so the step
+  failed silently at the first hour of a new day.
+- 2026-09-20 — **FIXED** `plan-issues`: told the user `/next` is the next verb;
+  the verb is `/next-issue`.
+- 2026-09-20 — **FIXED** `next-issue`: there was no guidance for an acceptance
+  criterion that needs a production run to evidence (crypto-datawarehouse #47
+  wanted five `_daily: done in` lines in a CI log). The agent could pin the
+  arithmetic in tests but could not produce the log, and dispatching a real
+  workflow run is a production write the skill never mentioned. The skill now
+  says: split the acceptance and say which half is pinned, state the gap plainly
+  ("not yet evidenced" is complete, "done" is not), name the trigger and every side
+  effect, never close the issue on the code alone, and — if authorised to dispatch
+  — verify `head_sha` matches the branch tip first, because a dispatch with no
+  explicit ref runs the DEFAULT branch and reports on the old behaviour while
+  looking like a green light.
+- 2026-09-20 — **FIXED** `handoff` + `plan-issues` + `next-issue`: four references
+  to `backlog #7/#8/#9` pointed at a numbered backlog that no longer exists (the
+  README Roadmap it lived in was never there). Replaced with a pointer to this
+  file, which is the backlog.
+- 2026-09-20 — **FIXED** `next-issue`: posting issue/PR bodies with markdown through
+  `gh issue comment --body "<text>"` in a double-quoted shell string **corrupts them**:
+  backticks become command substitutions (`\`full%\`` → "full%: command not found" and
+  the word vanishes from the text) and `\n` stays a LITERAL backslash-n, so paragraphs
+  collapse. Cost three silently-wrong posts on 2026-09-20 before being noticed. Always
+  write the body to a file and use `--body-file`, or build the JSON with `json.dumps`:
+  `python3 -c "import json;print(json.dumps({'body':open('f').read()}))" | gh api -X PATCH ... --input -`.
+  The skill mentions `--body-file` for some steps but never says why it is mandatory.
+- 2026-09-20 — **OPEN** `next-issue`: a NEW workflow cannot be dispatched until it
+  exists on the DEFAULT branch — `gh workflow run <new>.yml --ref <branch>` returns
+  HTTP 404 "not found on the default branch", and `--ref` only selects which
+  version to run, it does not make an unmerged workflow addressable. Found by
+  writing a diagnostic workflow to evidence an acceptance, then being unable to
+  dispatch it for exactly that. Guidance added to the skill's acceptance section.
+- 2026-09-20 — **FIXED** `next-issue`: the PR-body template says "list all milestone
+  issues as a checklist", and the new guidance links the PR to its milestone — so
+  regenerating the checklist from the milestone's issue list includes **the PR
+  itself** as an entry (`- [ ] #<pr> <milestone title>`). Filter them:
+  `gh api '.../issues?milestone=<n>' --jq '[.[] | select(.pull_request == null)]'`.
+  Surfaced when PR #52 listed itself as issue #52.
+- 2026-09-20 — **FIXED** — a harness note rather than a skill defect, recorded because
+  `next-issue` mandates running the full suite before every commit: a backgrounded
+  suite started as `( cmd > log 2>&1 ) &` is **killed when the tool call's shell is
+  torn down** (which happens on a 30s timeout), leaving a log that stops mid-run with
+  no summary — so the failure looks like a suite that ended early. `nohup bash -c
+  'cmd > log 2>&1; echo EXIT=$? >> log' &` survives. Cost one silent re-run on
+  2026-09-20. Always background with `nohup` and assert the log ends in `EXIT=`.
+- 2026-09-20 — **OPEN** `gh issue list --state all` can return a **stale** state
+  for minutes after a write: `gh issue close 47` reported success and the
+  immediately-following `gh issue list --milestone ... --state all` still showed
+  #47 OPEN, while `gh issue view 47` and the REST API both said `closed`
+  (`state_reason=completed`). Not a toolkit bug, but it invalidates "trust the
+  command output" verification — verify write-then-read pairs through
+  `gh issue view` or the REST API, not the cached list.
+

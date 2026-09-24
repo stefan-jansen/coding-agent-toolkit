@@ -20,18 +20,42 @@ Parse these from the user's invocation (any order):
 
 | Arg | Required | Default | Meaning |
 |---|---|---|---|
-| `--repo <owner/name>` | yes | — | Target GitHub repo |
+| `--repo <owner/name>` | no | the work unit's repo via `gh repo view --json nameWithOwner` | Target GitHub repo |
 | `--plan <path>` | no | active work unit's `plan.md` | Plan file to parse |
 | `--milestone <title>` | no | the milestone heading in `plan.md` | Override the milestone title |
 | `--apply` | no | false (dry-run) | Actually create. Without it, only print what would happen |
 | `--branch <name>` | no | none | If set, ensure the branch exists locally before opening issues (so `gh issue develop` is wired). Optional. |
+
+**Arguments arrive as free text, not as flags.** An invocation is typically
+`/plan-issues with the findings` or `/plan-issues` — there is no flag-passing
+channel in the harness. Treat the trailing text as CONTEXT (what to make issues
+out of) and resolve everything else by discovery. A `Required: yes` argument is
+therefore a guaranteed stall, which is why `--repo` is no longer one.
 
 If `--plan` is omitted, locate the active work unit:
 1. Look at the user's current working directory and walk up to a `.workspace/work/` dir.
 2. Inside it, the active unit is the most recently modified subdirectory that contains a `plan.md`.
 3. If ambiguous, **ask** the user which work unit, and offer the candidates.
 
-If `--repo` is omitted, **stop and ask**. Never guess the repo.
+If no `plan.md` exists anywhere, and the invocation carried content (findings,
+a spec, a discussion), **author one** at
+`<repo>/.workspace/work/<slug>/plan.md` in the shape documented below, then
+proceed — and say plainly in the summary that the plan is a transcription of the
+conversation rather than an approved artifact, because every issue's body will
+descend from it. If the invocation carried nothing to work from, ask for the
+plan; do not invent issues.
+
+**Resolve `--repo` from the work unit, do not ask for it.** That is not guessing:
+it is the repo the plan lives in, and `gh` reads it from the checkout's own
+remote.
+
+```bash
+cd <work-unit-repo> && gh repo view --json nameWithOwner --jq .nameWithOwner
+```
+
+Ask the user only when that cannot answer — no github.com remote, `gh`
+unauthenticated — or when the plan spans more than one repo, in which case list
+the candidates and their remotes rather than picking one.
 
 ## What "Issue N" looks like in plan.md
 
@@ -54,8 +78,12 @@ Run the same check before parsing, so a malformed plan fails here with a line
 number rather than halfway through creating issues:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/decompose/check_plan.py" <plan-path>
+python3 "<skills-dir>/decompose/check_plan.py" <plan-path>
 ```
+
+`<skills-dir>` is the directory holding the installed skills — `"${CLAUDE_PLUGIN_ROOT}/skills"`
+on Claude Code, the repo's own `skills/` from a checkout, and the host's global
+skills directory otherwise (e.g. `~/.agents/skills` for Cline).
 
 Parsing rules:
 
@@ -145,8 +173,8 @@ headless `codex exec` cannot satisfy — the call comes back as
 *"user cancelled MCP tool call"* and the issue is silently NOT created.
 Shell `gh issue create` has no such gate. Same applies to milestone
 creation (`gh api ... /milestones -X POST` rather than any connector tool).
-Surfaced in 2026-06-20 dogfood; same root cause as backlog #7 for
-`/next-issue`.
+Surfaced in 2026-06-20 dogfood; same root cause as the connector entry for
+`/next-issue` in the toolkit backlog (`.workspace/memory/history.md`).
 
 The body must include a "**Plan reference**" footer pointing at the source plan
 so the connection is traceable:
@@ -177,7 +205,7 @@ plan-issues — APPLIED
   milestone:  #<n> <title>
   issues:     #<a>, #<b>, #<c>, ...
   branch:     <name or "none">
-  next:       /next  (pick the first open issue and start)
+  next:       /next-issue  (pick the first open issue and start)
 ```
 
 ## Idempotency
@@ -197,7 +225,10 @@ This makes it safe to re-run after a partial failure mid-flight.
 
 ## Failure modes — fail loud
 
-- `plan.md` not found → print the search path, ask the user to pass `--plan`.
+- `plan.md` not found AND the invocation carried nothing to work from → print
+  the search path, then ask for the plan or the content to build one from. If it
+  DID carry content, author the plan instead (see Arguments) and flag it as a
+  transcription.
 - Milestone heading missing → quote the first 5 lines of `plan.md`, abort.
 - No `**Issue N —`` headings found → list what `**` lines DID match, abort.
 - `gh` returns non-zero on issue create → abort the loop, report which issue
@@ -208,6 +239,10 @@ This makes it safe to re-run after a partial failure mid-flight.
 At the end, write a one-line entry to the active hourly transition file at
 `.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H).md`:
 
+```bash
+mkdir -p ".workspace/transitions/$(date +%Y-%m-%d)"    # the hour changes; the dir may not exist
+```
+
 ```markdown
 ## HH:MM - plan-issues materialized
 - repo: <owner>/<repo>
@@ -216,6 +251,13 @@ At the end, write a one-line entry to the active hourly transition file at
 - branch: <name or none>
 ```
 
-Then tell the user: issues are open, milestone is wired, `/next` is the next
-verb. If frictions surfaced (parse ambiguity, naming clash, anything
-hand-massaged), log them as a one-line entry in the toolkit's backlog.
+If the repo does not already ignore `.workspace/transitions/`, say so rather than
+adding the rule yourself — it is the user's `.gitignore`, and an unignored
+`.workspace/` otherwise risks being swept into an unrelated `git add -A`.
+
+Then tell the user: issues are open, milestone is wired, `/next-issue` is the
+next verb. If frictions surfaced (parse ambiguity, naming clash, anything
+hand-massaged), record them under **`## Backlog (open)` in
+`~/coding-agent-toolkit/.workspace/memory/history.md`**, one dated line each —
+the README's old "Roadmap" pointer is stale and resolves to nothing, so that is
+where the backlog lives now.

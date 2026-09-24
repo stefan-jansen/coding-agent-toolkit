@@ -153,8 +153,10 @@ host can't run `gh pr merge` directly.
    lost a footer — surface the open issue list, close manually with
    `gh issue close <N> --reason completed --comment "Shipped in <MERGE_SHA>"`,
    and add a backlog entry noting the footer-preservation bug.
-2. **Default branch advanced.** `git fetch origin && git log -1 origin/<default> --format='%H %s'` —
-   verify the most recent commit is the merge.
+2. **Default branch advanced.** `git fetch "$GH_REMOTE" && git log -1 "$GH_REMOTE"/<default> --format='%H %s'` —
+   verify the most recent commit is the merge. (`GH_REMOTE` is the
+   github.com remote, resolved as in `/next-issue` — `origin` may be a local
+   bare mirror, in which case fetching it proves nothing about GitHub.)
 3. **Local default branch synced.** If the user is on the default branch
    locally, `git pull --ff-only`. If they're on the now-deleted feature
    branch, `git switch <default> && git pull --ff-only && git branch -D <feature>`.
