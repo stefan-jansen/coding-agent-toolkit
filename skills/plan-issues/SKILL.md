@@ -78,8 +78,12 @@ Run the same check before parsing, so a malformed plan fails here with a line
 number rather than halfway through creating issues:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/decompose/check_plan.py" <plan-path>
+python3 "<skills-dir>/decompose/check_plan.py" <plan-path>
 ```
+
+`<skills-dir>` is the directory holding the installed skills — `"${CLAUDE_PLUGIN_ROOT}/skills"`
+on Claude Code, the repo's own `skills/` from a checkout, and the host's global
+skills directory otherwise (e.g. `~/.agents/skills` for Cline).
 
 Parsing rules:
 
