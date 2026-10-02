@@ -22,3 +22,4 @@ dist/
 .workspace/work/current/*/state.json
 .workspace/memory/.index_state.*
 ACTIVE_WORK
+.claude/settings.local.json

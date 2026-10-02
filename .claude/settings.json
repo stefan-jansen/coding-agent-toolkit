@@ -1,9 +1,8 @@
 {
-  "$comment": "Self-hosted toolkit settings. Assumes the plugin marketplace is registered at user level via ~/.claude/settings.json — run ./install.sh (see README '## Quick start'). Plugins bring their own hooks; nothing needs registering here.",
+  "$comment": "Self-hosted toolkit settings. Assumes the plugin marketplace is registered at user level via ~/.claude/settings.json \u2014 run ./install.sh (see README '## Quick start'). Plugins bring their own hooks; nothing needs registering here. Auto memory is NOT redirected here: autoMemoryDirectory must be an absolute path, so it belongs in per-machine .claude/settings.local.json (see the memory plugin README, 'Auto memory').",
   "enabledPlugins": {
     "workflow@local": true,
     "memory@local": true,
     "roborev@local": true
-  },
-  "autoMemoryDirectory": "./.workspace/memory/auto"
+  }
 }
