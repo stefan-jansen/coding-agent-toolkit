@@ -8,6 +8,17 @@
 
 <One sentence: what is true when this is done that isn't true now.>
 
+## Terms
+
+<Every term in this spec that admits readings which would produce different code or
+different numbers. `verification terms check spec.md` must pass before decompose.>
+
+Context: <venue, asset class, data source or kind of material, comma-separated>
+
+| Term | Readings | Status | Basis |
+|---|---|---|---|
+| ... | (a) ... (b) ... | house-definition / readings-agree / resolved-by-author | definition id / data and measured divergence / chosen reading |
+
 ## Why
 
 <What breaks or is lost without this. Who feels the pain. The motivating context.>

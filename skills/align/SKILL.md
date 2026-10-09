@@ -113,6 +113,36 @@ so much that you audit the whole repo. Two things come out of this phase:
 Tell the user briefly what you looked at and the two or three findings that
 will shape the spec. Then interrogate.
 
+## Phase 1b - Terms with more than one reading
+
+A specification written by someone fluent in the domain leaves out what that
+person takes for granted, and code fills the gap with whatever the nearest
+example did. Before interrogating, list every term in the request whose readings
+would produce different code or different numbers: "20-day" (rows or sessions),
+"outside the holdout" (decision date or label exit), "same settings" (same inputs
+or same result), "the symbol" (ticker or firm). For each, write the readings.
+
+Then, for each term, in this order:
+
+1. **House definition.** Write the `## Terms` table into the draft spec and run
+   `verification terms apply <spec>`. A term the store already resolves for this
+   context is marked `house-definition` and is never put to the author.
+2. **Compute the readings.** Where data the work will use is available, compute
+   the result under each reading and measure the difference. If they agree on
+   that data, mark `readings-agree` and name the data and the measured
+   difference in Basis. Do not put it to the author.
+3. **Ask.** Put only the remaining terms to the author, each with its readings
+   and, where computed, the size of the divergence. Mark the answer
+   `resolved-by-author`. When the answer is not specific to this project, record
+   it with `verification terms define --term ... --context ... --definition ...
+   --decided-by <author> --origin <repo>:<path to this spec>` so later specs in
+   any repository apply it.
+
+These questions count toward the question floor. `verification terms check
+<spec>` must exit 0 before the spec is written as final; if the
+`verification` CLI is not installed, keep the table and state that the check
+could not run.
+
 ## Phase 2 — Interrogate (forceful)
 
 The old `explore` step failed on the *goal* side: it was too gentle, accepted
