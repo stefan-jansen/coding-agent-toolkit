@@ -88,6 +88,23 @@ Hard rules:
   B's body. Do not rely on issue numbers to imply it.
 - **Do not design what the spec left open.** An open question in the spec stays
   an open question; name it in the plan and say who decides.
+- **State premises where the code relies on them.** Every issue whose code
+  computes over data carries a `### Premises` section: one `Input: <name>` per
+  input, then a table `| Question | Answer | Kind |` answering each question in
+  the set (`verification premises check` prints any it is missing): what a record
+  means, what an absent record means, ordering and spacing, entity identity, when
+  each value was known and actionable, and which institution's rules decide
+  these. An issue that simulates trading writes `Simulates trading: yes` and also
+  answers when information arrives, when an order can be placed and what price
+  was achievable. Kind is `definitional` (settled by the spec's term table) or
+  `empirical` (to be tested); `not-applicable: <reason>` needs no kind. An issue
+  computing over no data writes `Premises: none - <reason>`.
+- **List claims.** A number, comparison or property the issue's output asserts to
+  a reader goes in a `### Claims` table `| Id | Claim | How it could be false |`.
+- **Declare closure.** Each issue ends with `Closes: <items>` (or `Closes: none`)
+  and, if it only advances some, `Advances: <items>`. A premise item is
+  `<input-slug>.<question>`; a claim item is its Id. Every item is closed by
+  exactly one issue: the earliest one where its test can run.
 
 ## Before you finish
 
@@ -95,7 +112,13 @@ Validate the file. The check is deterministic and lives beside this skill:
 
 ```bash
 python3 "<skill-dir>/check_plan.py" <work-unit>/plan.md
+verification premises check <work-unit>/plan.md
+verification claims list <work-unit>/plan.md
+verification closure check <work-unit>/plan.md
 ```
+
+The three `verification` checks need the `verification` plugin; if it is not
+installed, say so in the report rather than skipping silently.
 
 It exits non-zero and names the offending line on a shape violation. Fix the
 file and re-run until it passes. Do not hand off a plan that fails it, because

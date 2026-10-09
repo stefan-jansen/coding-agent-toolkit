@@ -57,6 +57,17 @@ number rather than halfway through creating issues:
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/decompose/check_plan.py" <plan-path>
 ```
 
+Then run the premise, claim and closure checks, and abort on any failure: an
+issue body is created only from a plan whose every premise is answered, every
+claim says how it could be false, and every item is closed by exactly one issue.
+The bodies carry the `### Premises`, `### Claims`, `Closes:` and `Advances:`
+lines verbatim, so each issue states what it completes.
+
+```bash
+verification premises check <plan-path> && verification claims list <plan-path> \
+  && verification closure check <plan-path>
+```
+
 Parsing rules:
 
 - The **milestone** is the first `### Milestone: \`X - Y\`` line. The full
