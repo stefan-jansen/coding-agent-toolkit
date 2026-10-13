@@ -119,8 +119,10 @@ tells you**. The skill's job is to set the boundaries.
    test could already run. A waiver (reason and date), `test-unreachable`
    (the missing prerequisite) and a `finding` (a test that fails on the current
    code for reasons outside this issue, filed where its owner sees it) are the
-   author's decisions. When an item needs one, propose it in your report and
-   stop; never record it yourself to get past the gate.
+   author's decisions, and their rows carry `decided_by` and `date`, which
+   coverage requires. A row with `decided_by` is the author's record: commit it
+   as it stands. When an item needs one, propose it in your report and stop;
+   never write such a row, or a `decided_by`, yourself.
 
    Once it passes, write the author's table and commit it, `evidence.jsonl` and
    `results/` with the closing commit:
