@@ -48,9 +48,9 @@ claude --version          # need >= 2.1.224 (>= 2.1.232 for @-mention + /config 
 [ -n "$CLAUDE_CODE_MESSAGING_SOCKET" ] && echo "messaging on" || echo "messaging OFF"
 ```
 
-If `/list-agents` isn't recognized, the session predates the feature or a
-feature-flag-killing env var is set (`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`,
-`DISABLE_TELEMETRY`, `DO_NOT_TRACK`, `DISABLE_GROWTHBOOK`) — unset it and restart.
+If `/list-agents` isn't recognized, the session predates the feature (v2.1.224).
+Same-machine messaging no longer depends on feature-flag fetching, so telemetry
+and nonessential-traffic env vars do not turn it off.
 
 ## Address the right peer
 
@@ -64,7 +64,10 @@ location · started`. Address a peer by the **name** exactly as printed.
 - **A session names itself** unless started with `--name` or renamed with
   `/rename`. For a fleet you plan to message a lot, name the panes up front so
   the addresses are stable and memorable.
-- **Reach is same-machine, same OS user, same filesystem.** Worktrees qualify.
+- **Reach is same-machine, same OS user, same filesystem** by default. Worktrees
+  qualify. Sessions on your other machines and cloud sessions appear too when
+  both ends are connected to Remote Control; with `isolatePeerMachines: true`
+  each such send waits for approval.
   A container can't cross to the host. A bare-mode `-p` worker binds no socket
   and won't appear; a normal `-p` worker does.
 
@@ -99,7 +102,8 @@ The peer's reply arrives as a new message, delivered between your tool calls (or
 as a new turn if you're idle). You don't poll a mailbox — continue working and
 handle the reply when it lands. For a long-running peer (a migration, a test
 run), send the ask, keep doing other work, and the report comes back on its own.
-If you need to block on it, say so to the user rather than busy-waiting.
+If you need to know when the peer finishes, subscribe with `SendMessage`'s
+`notify_when_idle` rather than busy-waiting.
 
 ## Inspect a peer's context (you can't do this by messaging)
 
@@ -135,7 +139,7 @@ Reads only; it never messages or writes.
 |---|---|---|
 | Held for approval / dialog appears | receiver's `crossSessionInbound` default holds it (mixed permission-mode pairing) | set `crossSessionInbound: "accept"` in the receiver's settings |
 | Sent, never showed up | receiver was a bare-mode `-p` worker, in a container, or the held dialog expired (5 min) | start `-p` workers with `--settings crossSessionInbound=accept`; don't message across a container boundary |
-| Peer not in the list | different OS user / machine / container, or bare mode | same-machine same-user only; use Remote Control for cross-machine |
+| Peer not in the list | different OS user / container, bare mode, or another machine without Remote Control | connect both sessions to Remote Control for another machine; nothing reaches across an OS user or container |
 | Cross-machine send blocked pending approval | `isolatePeerMachines: true` (by design) | approve the prompt, or unset if you don't want it |
 | `SendMessage` / `ListAgents` absent | a deny rule removed them | remove the `SendMessage` / `ListAgents` permission deny rule |
 
