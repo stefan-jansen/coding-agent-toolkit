@@ -108,12 +108,15 @@ tells you**. The skill's job is to set the boundaries.
    a refusal changes nothing: no closing commit, no push of one, no PR checkbox
    ticked, no issue or milestone closed, nothing published, no student-facing
    file written. Leave the working tree as it is, report each item the command
-   named and why, and stop. Cover an item with a test that `verification
-   violate` accepts (its declaration and a `test` row in
-   `<unit>/evidence.jsonl`), a waiver with a reason and a date, `test-unreachable`
-   naming the missing prerequisite, or, when its test fails on the current code
-   for reasons outside this issue, a `finding` filed where its owner will see it.
-   Then run the command again.
+   named and why, and stop.
+
+   Covering items is part of the implementation, but only one way is yours:
+   write the item's test, its `verification violate` declaration, and a `test`
+   row in `<unit>/evidence.jsonl`. A waiver (reason and date), `test-unreachable`
+   (the missing prerequisite) and a `finding` (a test that fails on the current
+   code for reasons outside this issue, filed where its owner sees it) are the
+   author's decisions. When an item needs one, propose it in your report and
+   stop; never record it yourself to get past the gate.
 
    Once it passes, write the author's table and commit it, `evidence.jsonl` and
    `results/` with the closing commit:
