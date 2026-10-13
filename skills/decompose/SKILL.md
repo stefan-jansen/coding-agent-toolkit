@@ -101,6 +101,12 @@ Hard rules:
   computing over no data writes `Premises: none - <reason>`.
 - **List claims.** A number, comparison or property the issue's output asserts to
   a reader goes in a `### Claims` table `| Id | Claim | How it could be false |`.
+  A claim whose value is a measured number (a time, throughput, speedup or memory
+  figure) adds a fourth column, `Kind`, set to `measured`, and the issue carries a
+  `### Measured: <id>` section answering the checklist that
+  `verification claims template` prints: what bounds the number, what else it
+  could be measuring, whether the work ran inside the timed region, whether both
+  sides ran configured alike, and the arithmetic limit it must respect.
 - **Declare closure.** Each issue ends with `Closes: <items>` (or `Closes: none`)
   and, if it only advances some, `Advances: <items>`. A premise item is
   `<input-slug>.<question>`; a claim item is its Id. Every item is closed by
