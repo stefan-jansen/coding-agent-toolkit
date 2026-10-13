@@ -200,8 +200,9 @@ Do not run tests or touch files in dry-run.
 
 ## Output to the user
 
-At the end (non-dry-run), write a one-line entry to the active hourly
-transition file at `.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H).md`:
+At the end (non-dry-run), write a short record to a new transition file at
+`.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H%M%S).md` (one file per
+event, the convention the transition plugin and `/handoff` use):
 
 ```markdown
 ## HH:MM - next-issue #<N> shipped

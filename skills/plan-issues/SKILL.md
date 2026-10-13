@@ -8,7 +8,7 @@ user-invocable: true
 
 You are running the **PLAN-ISSUES** step of the workflow. Your job is to
 turn the durable `plan.md` (produced by the headless `decompose` step) into a GitHub
-**milestone + one issue per planned issue**, so that subsequent `/next` work
+**milestone + one issue per planned issue**, so that subsequent `/next-issue` work
 units can be traced 1:1 to a closed issue.
 
 This step is **host-neutral**: same contract on Claude and Codex. The verb is
@@ -179,7 +179,7 @@ git rev-parse --verify "<name>" >/dev/null 2>&1 \
   || git switch -c "<name>" >/dev/null
 ```
 
-Do NOT push the branch — that's `/next`'s job, not this step's.
+Do NOT push the branch — that's `/next-issue`'s job, not this step's.
 
 ### 5. Print summary
 
@@ -188,7 +188,7 @@ plan-issues — APPLIED
   milestone:  #<n> <title>
   issues:     #<a>, #<b>, #<c>, ...
   branch:     <name or "none">
-  next:       /next  (pick the first open issue and start)
+  next:       /next-issue  (pick the first open issue and start)
 ```
 
 ## Idempotency
@@ -216,8 +216,9 @@ This makes it safe to re-run after a partial failure mid-flight.
 
 ## Output to the user
 
-At the end, write a one-line entry to the active hourly transition file at
-`.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H).md`:
+At the end, write a short record to a new transition file at
+`.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H%M%S).md` (one file per
+event, the convention the transition plugin and `/handoff` use):
 
 ```markdown
 ## HH:MM - plan-issues materialized
@@ -227,6 +228,6 @@ At the end, write a one-line entry to the active hourly transition file at
 - branch: <name or none>
 ```
 
-Then tell the user: issues are open, milestone is wired, `/next` is the next
+Then tell the user: issues are open, milestone is wired, `/next-issue` is the next
 verb. If frictions surfaced (parse ambiguity, naming clash, anything
 hand-massaged), log them as a one-line entry in the toolkit's backlog.

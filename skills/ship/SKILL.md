@@ -225,8 +225,9 @@ Do not run `gh pr ready`, `gh pr merge`, or close the milestone in dry-run.
 
 ## Output to the user
 
-After a non-dry-run ship, append to the active hourly transition file at
-`.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H).md`:
+After a non-dry-run ship, write a short record to a new transition file at
+`.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H%M%S).md` (one file per
+event, the convention the transition plugin and `/handoff` use):
 
 ```markdown
 ## HH:MM - ship — milestone <title> closed
