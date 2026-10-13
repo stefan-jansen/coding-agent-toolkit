@@ -110,9 +110,13 @@ tells you**. The skill's job is to set the boundaries.
    file written. Leave the working tree as it is, report each item the command
    named and why, and stop.
 
-   Covering items is part of the implementation, but only one way is yours:
-   write the item's test, its `verification violate` declaration, and a `test`
-   row in `<unit>/evidence.jsonl`. A waiver (reason and date), `test-unreachable`
+   Covering items is part of the implementation, and two ways are yours. Write
+   the item's test, its `verification violate` declaration, and a `test` row in
+   `<unit>/evidence.jsonl`. Or, when the test needs something a later issue in
+   the plan delivers, record a `deferred` row naming that issue (`to_issue`, its
+   plan number) and the missing prerequisite; that issue's gate then requires
+   the item, and `verification deferrals <plan-path>` reports a deferral whose
+   test could already run. A waiver (reason and date), `test-unreachable`
    (the missing prerequisite) and a `finding` (a test that fails on the current
    code for reasons outside this issue, filed where its owner sees it) are the
    author's decisions. When an item needs one, propose it in your report and

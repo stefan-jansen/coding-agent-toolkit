@@ -76,8 +76,24 @@ Ship is the gate. Verify ALL of these before merging:
    ready — surface and ask whether to proceed anyway. The closing-footer
    check above is the load-bearing gate; the checkboxes are a courtesy.
 
+5. **No item still deferred.** When the milestone's plan uses the
+   verification regime (its issues carry `Closes:` lines), run:
+
+   ```bash
+   verification milestone-check <plan-path> --closed <plan numbers of closed issues>
+   ```
+
+   It exits non-zero while any item in `<unit>/evidence.jsonl` is still
+   `deferred`, naming the item and the issue it was deferred to, and says when
+   that issue closed without verifying it. This is the only verification check
+   at milestone close: every other item was gated by its own issue. A plan
+   without `Closes:` lines predates the regime and skips this gate.
+
 If any gate fails and the user has not passed `--force`, abort with a clear
-explanation of which gate failed.
+explanation of which gate failed. `--force` does not override gate 5: an item
+still deferred is resolved by verifying it, or by the author recording a
+waiver or `test-unreachable` for it, before the milestone ships. A refusal
+merges nothing, closes no issue or milestone and deletes no branch.
 
 ## Mark ready (if draft)
 
@@ -219,6 +235,8 @@ Do not run `gh pr ready`, `gh pr merge`, or close the milestone in dry-run.
 - Closing-footer gaps → list missing `Closes #<N>` per open issue, suggest
   `/next-issue` to fill them, abort.
 - PR has conflicts / failing checks → surface state, abort.
+- `verification milestone-check` refuses → name each deferred item and its
+  issue, merge nothing, abort (not overridden by `--force`).
 - `gh pr merge` fails → surface stderr, abort. Do NOT retry destructively.
 - Post-merge: issues still open → surface, close manually, log a toolkit
   backlog entry about the missing footer.
