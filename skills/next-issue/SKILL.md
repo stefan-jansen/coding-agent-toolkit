@@ -94,7 +94,37 @@ tells you**. The skill's job is to set the boundaries.
 3. **Run tests before committing.** Use the project's test runner. If the
    suite has a fast subset, run that during iteration and the full suite
    once before commit. If anything fails, fix or abort — never commit red.
-4. **One issue = one commit.** Squash any incremental commits into a single
+4. **Pass the issue gate before the closing commit.** When the issue's section
+   in the plan has a `Closes:` line, the plan uses the verification regime, and
+   the items it closes must be covered before the commit that closes the issue.
+   With the suite green, and before `git commit`, run:
+
+   ```bash
+   verification coverage <plan-path> --issue <M>
+   ```
+
+   `<M>` is the plan's issue number from the "Plan reference" footer ("Issue M
+   in milestone ..."), not the GitHub number. A non-zero exit is a refusal, and
+   a refusal changes nothing: no closing commit, no push of one, no PR checkbox
+   ticked, no issue or milestone closed, nothing published, no student-facing
+   file written. Leave the working tree as it is, report each item the command
+   named and why, and stop. Cover an item with a test that `verification
+   violate` accepts (its declaration and a `test` row in
+   `<unit>/evidence.jsonl`), a waiver with a reason and a date, `test-unreachable`
+   naming the missing prerequisite, or, when its test fails on the current code
+   for reasons outside this issue, a `finding` filed where its owner will see it.
+   Then run the command again.
+
+   Once it passes, write the author's table and commit it, `evidence.jsonl` and
+   `results/` with the closing commit:
+
+   ```bash
+   verification review-table <plan-path> --issue <M>
+   ```
+
+   Commits that close nothing, and every push, are never blocked. A plan whose
+   issue has no `Closes:` line predates the regime and has no gate.
+5. **One issue = one commit.** Squash any incremental commits into a single
    commit before push, with the message format below.
 
 ## Commit message format
@@ -197,6 +227,8 @@ Do not run tests or touch files in dry-run.
 - Test suite fails after implementation → leave the working tree untouched,
   do not commit, surface the failing output to the user.
 - Branch is on default branch and you would have to commit there → abort.
+- Issue gate refuses (`verification coverage` exits non-zero) → no closing
+  commit, no checkbox, nothing closed or published; name each uncovered item.
 
 ## Output to the user
 
