@@ -169,6 +169,7 @@ default branch:
 ```bash
 gh pr create --draft \
   --title "<milestone title>" \
+  --milestone "<milestone title>" \
   --body "<body listing all milestone issues as a checklist>"
 ```
 
