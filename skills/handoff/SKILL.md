@@ -18,13 +18,17 @@ what makes the swap work, not orchestration.
 
 ## When to use
 
-- Approaching context limit (Claude: ~80%+; Codex: when reasoning quality
-  starts to degrade).
-- Switching hosts mid-feature (Claude → Codex or vice versa).
-- End of day / wrapping a session before a break.
+- Switching hosts mid-feature (Claude → Codex or vice versa). Neither host can
+  resume the other's session, so the transition file is the only carrier.
+- Before a deliberate `/clear`, or at a day boundary, when the next session
+  should start from curated state.
 - After a milestone ships, before starting the next one.
-- Before any operation that may lose state (`/clear`, `/compact`, host
-  restart).
+
+Not before `/compact` or as the context fills. Both hosts compact
+automatically and write their own summary (the `transition` plugin copies
+Claude's to `.workspace/transitions/`), so a handoff then is a second summary of
+the same state. On the same host, `claude --continue` / `--resume` and
+`codex resume` restore the session itself.
 
 ## Arguments
 
