@@ -12,7 +12,7 @@ the shared `.workspace/transitions/` tree so any future session on either
 host can resume without re-deriving context.
 
 This step is **host-neutral**: same contract on Claude and Codex. The shared
-`.workspace/` directory is the host-swap primitive (see backlog #8) —
+`.workspace/` directory is the host-swap primitive —
 there is no "execute as the other host" verb because the durable state is
 what makes the swap work, not orchestration.
 
@@ -97,7 +97,7 @@ work)
 | ... | ... | ... |
 
 ### Open backlog items / known frictions
-1. <num>. <one-line>. <link to README backlog if applicable>
+1. <num>. <one-line>. <link to the issue, if one exists>
 
 ## Suggested next steps (pick one, ordered by leverage)
 
@@ -227,8 +227,8 @@ The cold-reader CANNOT see decisions made in this session, dead-ends
 hit and avoided, or invariants held in your head. List the ones a
 fresh agent would otherwise re-derive (badly). Limit to 3-5 points —
 more than that is a sign the digest is doing too much. Anything
-larger belongs in `~/agents/coding/coding-agent-toolkit/README.md` or a memory
-file, not a transition.
+larger belongs in the project's `AGENTS.md` or a `.workspace/memory/` file,
+not a transition.
 
 ### Files touched
 

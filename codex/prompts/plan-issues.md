@@ -28,6 +28,13 @@ If `--repo` is missing, STOP and ask. Never guess.
 
 ## Parse plan.md
 
+Validate first, so a malformed plan fails here with a line number rather than
+halfway through creating issues:
+
+```bash
+python3 <toolkit>/skills/decompose/check_plan.py <plan-path>
+```
+
 - Milestone: first `### Milestone: \`X — Y\`` line. Backticked content is the title.
 - Issues: every `**Issue N — <title>**` heading.
 - Body: lines after each issue heading until the next `**Issue`, next `## `, or EOF.
@@ -93,10 +100,16 @@ plan-issues — APPLIED
   milestone:  #<n> <title>
   issues:     #<a>, #<b>, #<c>, ...
   branch:     <name or "none">
-  next:       /next
+  next:       /next-issue
 ```
 
-Append a one-liner to `.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H).md`:
+Write a new transition file at
+`.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H%M%S).md`, creating the date
+directory first:
+
+```bash
+mkdir -p ".workspace/transitions/$(date +%Y-%m-%d)"
+```
 
 ```markdown
 ## HH:MM - plan-issues materialized
