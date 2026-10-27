@@ -113,9 +113,14 @@ Codex discovered this unprompted during the 0.3.0 dogfood ship.
 1. `gh issue list --repo <owner>/<repo> --milestone "<title>" --state open --json number`
    → expect `[]`. Any still open → close manually with
    `gh issue close <N> --reason completed --comment "Shipped in <MERGE_SHA>"`
-   and note a backlog entry about the missing footer.
-2. `git fetch origin && git log -1 origin/<default> --format='%H %s'` → expect
-   the merge commit.
+   and report the missing footer as a candidate toolkit issue.
+2. Fetch from the remote whose URL is `<owner>/<repo>` (`origin` can be a fork
+   or a local mirror) → expect the merge commit:
+
+   ```bash
+   GH_REMOTE=$(git remote -v | awk -v r="<owner>/<repo>" '$2 ~ ("github\\.com[:/]" r "(\\.git)?$") {print $1; exit}')
+   git fetch "$GH_REMOTE" && git log -1 "$GH_REMOTE/<default>" --format='%H %s'
+   ```
 3. If user is on the deleted feature branch locally:
    `git switch <default> && git pull --ff-only && git branch -D <feature>`.
 
@@ -152,8 +157,13 @@ No `gh pr ready`, no `gh pr merge`, no milestone close in dry-run.
 
 ## Output
 
-After a non-dry-run ship, append to
-`.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H).md`:
+After a non-dry-run ship, write a new transition file at
+`.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H%M%S).md`, creating the
+date directory first:
+
+```bash
+mkdir -p ".workspace/transitions/$(date +%Y-%m-%d)"
+```
 
 ```markdown
 ## HH:MM - ship — milestone <title> closed
@@ -165,8 +175,8 @@ After a non-dry-run ship, append to
 ```
 
 Tell the user: merge SHA, closed issues, what's next (`/plan-issues` for the
-next milestone or `/align` for a new scope), and any backlog candidates worth
-adding to `~/agents/coding/coding-agent-toolkit/README.md`.
+next milestone or `/align` for a new scope), and anything that fell out of
+spec, as candidate issues for the toolkit at https://github.com/stefan-jansen/coding-agent-toolkit/issues.
 
 ## Idempotency
 
@@ -182,4 +192,4 @@ Fail loud. `gh` unauth → abort with `gh auth login` hint. No active milestone 
 abort. No open PR → suggest `/next-issue`. Closing-footer gaps → list missing
 `Closes #<N>` per open issue, abort. Conflicts / failing checks → surface and
 abort. `gh pr merge` fails → surface stderr, do not retry destructively.
-Post-merge issues still open → close manually, log backlog entry.
+Post-merge issues still open → close manually, report the missing footer.

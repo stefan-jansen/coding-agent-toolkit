@@ -39,16 +39,31 @@ gh api "repos/<owner>/<repo>/milestones?state=open" --jq '.[].title'
 
 ```bash
 gh issue list --repo <owner>/<repo> --milestone "<title>" --state open \
-  --json number,title,body --jq 'sort_by(.number)|.[0]'
+  --json number,title,body --jq 'sort_by(.number)'
 ```
 
-If `--issue <N>` given, fetch that one and verify it's in the milestone + open.
+Issues stay open until the milestone PR merges, so skip any candidate already
+committed on the milestone branch (resolved below):
+`git log --format=%B "<default>..<branch>" | grep -qE '^Closes #<N>\.?$'`.
+If all are shipped, point at `/ship`.
+
+If `--issue <N>` given, fetch that one and verify it's in the milestone + open,
+and ask before redoing it if it is already shipped on the branch.
+
+## GitHub remote
+
+`origin` can be a fork or a local mirror. Use the remote whose URL is
+`<owner>/<repo>` for every fetch and push; abort if none matches:
+
+```bash
+GH_REMOTE=$(git remote -v | awk -v r="<owner>/<repo>" '$2 ~ ("github\\.com[:/]" r "(\\.git)?$") {print $1; exit}')
+```
 
 ## Branch (one PR per milestone, one commit per issue)
 
 1. Look up an existing PR for this milestone:
    `gh pr list --state open --json number,headRefName,milestone --jq '.[] | select(.milestone.title == "<title>")'`
-2. If found → `git fetch origin <headRefName>` + `git switch <headRefName>`.
+2. If found → `git fetch "$GH_REMOTE" <headRefName>` + `git switch <headRefName>`.
 3. Else → derive `feat/<milestone-slug>` (lowercase, non-alphanum → `-`,
    trim). `git switch -c <branch>` from the default branch.
 
@@ -94,8 +109,8 @@ Connector preference is a documented Codex behaviour that the
 orchestration prompt must explicitly suppress.
 
 ```bash
-git push -u origin <branch>     # first push
-git push                        # subsequent
+git push -u "$GH_REMOTE" <branch>   # first push
+git push                            # subsequent
 ```
 
 If no PR yet, open a draft PR with body listing all milestone issues as a
@@ -133,8 +148,13 @@ No tests, no file writes, no `gh` writes.
 
 ## Output
 
-After a non-dry-run shipment, append to
-`.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H).md`:
+After a non-dry-run shipment, write a new transition file at
+`.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H%M%S).md`, creating the
+date directory first:
+
+```bash
+mkdir -p ".workspace/transitions/$(date +%Y-%m-%d)"
+```
 
 ```markdown
 ## HH:MM - next-issue #<N> shipped
@@ -148,8 +168,8 @@ After a non-dry-run shipment, append to
 ```
 
 Tell the user: which issue shipped, what's next (next open issue, or `/ship`
-if milestone is empty), and any frictions worth backlog entries in
-`~/agents/coding/coding-agent-toolkit/README.md`.
+if milestone is empty), and any frictions in the step itself, as candidate
+issues for the toolkit at https://github.com/stefan-jansen/coding-agent-toolkit/issues.
 
 ## Failure modes
 

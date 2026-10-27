@@ -51,10 +51,11 @@ The `decompose` step produces this shape, and validates it with
 ```
 
 Run the same check before parsing, so a malformed plan fails here with a line
-number rather than halfway through creating issues:
+number rather than halfway through creating issues. The script lives in the
+`decompose` skill, a sibling of this skill's directory:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/decompose/check_plan.py" <plan-path>
+python3 "<skill-dir>/../decompose/check_plan.py" <plan-path>
 ```
 
 Then run the premise, claim and closure checks, and abort on any failure: an
@@ -156,8 +157,7 @@ headless `codex exec` cannot satisfy — the call comes back as
 *"user cancelled MCP tool call"* and the issue is silently NOT created.
 Shell `gh issue create` has no such gate. Same applies to milestone
 creation (`gh api ... /milestones -X POST` rather than any connector tool).
-Surfaced in 2026-06-20 dogfood; same root cause as backlog #7 for
-`/next-issue`.
+Surfaced in a 2026-06-20 trial run; `/next-issue` has the same constraint.
 
 The body must include a "**Plan reference**" footer pointing at the source plan
 so the connection is traceable:
@@ -218,7 +218,12 @@ This makes it safe to re-run after a partial failure mid-flight.
 
 At the end, write a short record to a new transition file at
 `.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H%M%S).md` (one file per
-event, the convention the transition plugin and `/handoff` use):
+event, the convention the transition plugin and `/handoff` use). Create the
+date directory first; it does not exist on the first write of a day:
+
+```bash
+mkdir -p ".workspace/transitions/$(date +%Y-%m-%d)"
+```
 
 ```markdown
 ## HH:MM - plan-issues materialized
@@ -230,4 +235,5 @@ event, the convention the transition plugin and `/handoff` use):
 
 Then tell the user: issues are open, milestone is wired, `/next-issue` is the next
 verb. If frictions surfaced (parse ambiguity, naming clash, anything
-hand-massaged), log them as a one-line entry in the toolkit's backlog.
+hand-massaged), list them as candidate issues for the toolkit at
+https://github.com/stefan-jansen/coding-agent-toolkit/issues.

@@ -114,7 +114,7 @@ reading what the previous one wrote.
 
 | Path | Contents |
 |---|---|
-| `AGENTS.md` | Canonical project instructions. Codex reads it natively; Claude includes it via a one-line `CLAUDE.md`. |
+| `AGENTS.md` | Canonical project instructions, read natively by Codex and by Claude Code. Do not add a `CLAUDE.md`: Claude Code reads `AGENTS.md` only when none exists. |
 | `.workspace/memory/` | Persistent project memory — facts that survive a `/clear`. |
 | `.workspace/transitions/` | Session handoffs (`handoff` / `continue`). |
 | `.workspace/work/<unit>/` | Active work units: specs, plans, references, follow-up notes. |
@@ -174,7 +174,6 @@ docs/
 install.sh               One-time system installer (registers the marketplace,
                          enables core plugins at user level)
 AGENTS.md                Canonical project instructions
-CLAUDE.md                @AGENTS.md (one line)
 LICENSE                  MIT
 ```
 

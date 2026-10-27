@@ -32,8 +32,7 @@ files.
 
 | Path | Role |
 |---|---|
-| `AGENTS.md` (this file) | Canonical project instructions. Codex reads natively; Claude includes via `CLAUDE.md`. |
-| `CLAUDE.md` | One line — `@AGENTS.md`. |
+| `AGENTS.md` (this file) | Canonical project instructions, read natively by Codex and by Claude Code. There is no `CLAUDE.md`: Claude Code reads `AGENTS.md` only when none exists. |
 | `.workspace/memory/` | Persistent project memory; load on demand. |
 | `.workspace/transitions/YYYY-MM-DD/HHMMSS.md` | `/handoff` output; `/continue` resumes from any of these on either host. |
 | `.workspace/work/` | Active work units (specs, plans, references, follow-up notes). |

@@ -168,9 +168,17 @@ host can't run `gh pr merge` directly.
    Expect an empty array. If anything is still open, the squash body may have
    lost a footer — surface the open issue list, close manually with
    `gh issue close <N> --reason completed --comment "Shipped in <MERGE_SHA>"`,
-   and add a backlog entry noting the footer-preservation bug.
-2. **Default branch advanced.** `git fetch origin && git log -1 origin/<default> --format='%H %s'` —
-   verify the most recent commit is the merge.
+   and report the lost footer as a candidate toolkit issue.
+2. **Default branch advanced.** Fetch from the remote whose URL is
+   `<owner>/<repo>`, not from `origin`, which can be a fork or a local mirror
+   and would then confirm the merge against the wrong repository:
+
+   ```bash
+   GH_REMOTE=$(git remote -v | awk -v r="<owner>/<repo>" '$2 ~ ("github\\.com[:/]" r "(\\.git)?$") {print $1; exit}')
+   git fetch "$GH_REMOTE" && git log -1 "$GH_REMOTE/<default>" --format='%H %s'
+   ```
+
+   Verify the most recent commit is the merge.
 3. **Local default branch synced.** If the user is on the default branch
    locally, `git pull --ff-only`. If they're on the now-deleted feature
    branch, `git switch <default> && git pull --ff-only && git branch -D <feature>`.
@@ -238,14 +246,19 @@ Do not run `gh pr ready`, `gh pr merge`, or close the milestone in dry-run.
 - `verification milestone-check` refuses → name each deferred item and its
   issue, merge nothing, abort (not overridden by `--force`).
 - `gh pr merge` fails → surface stderr, abort. Do NOT retry destructively.
-- Post-merge: issues still open → surface, close manually, log a toolkit
-  backlog entry about the missing footer.
+- Post-merge: issues still open → surface, close manually, report the missing
+  footer as a candidate toolkit issue.
 
 ## Output to the user
 
 After a non-dry-run ship, write a short record to a new transition file at
 `.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H%M%S).md` (one file per
-event, the convention the transition plugin and `/handoff` use):
+event, the convention the transition plugin and `/handoff` use). Create the
+date directory first; it does not exist on the first write of a day:
+
+```bash
+mkdir -p ".workspace/transitions/$(date +%Y-%m-%d)"
+```
 
 ```markdown
 ## HH:MM - ship — milestone <title> closed
@@ -259,5 +272,5 @@ event, the convention the transition plugin and `/handoff` use):
 Then tell the user: the merge SHA, the closed issues, and what's next
 (`/plan-issues` for the next milestone, or `/align` for a new scope). If
 anything fell out of spec (a missing footer caught at post-merge, a milestone
-that had to be hand-closed), surface it as a backlog candidate for
-`~/agents/coding/coding-agent-toolkit/README.md`.
+that had to be hand-closed), list it as a candidate issue for the toolkit at
+https://github.com/stefan-jansen/coding-agent-toolkit/issues.

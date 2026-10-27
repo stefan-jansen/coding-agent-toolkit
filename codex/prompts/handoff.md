@@ -22,7 +22,7 @@ Parse from the user's invocation (any order):
 - `--dry-run` — print to stdout instead of writing.
 
 **Always write under `.workspace/transitions/`** — the shared path is
-load-bearing for cross-host continuation (backlog #8). Never
+load-bearing for cross-host continuation. Never
 `.codex/transitions/` or `.claude/transitions/`.
 
 ## File structure (mandatory)
@@ -115,8 +115,8 @@ W".
 
 **Important context**: only things the cold-reader cannot derive from
 code in one query. Decisions made, dead-ends avoided, invariants held
-in your head. Limit 3-5 — more belongs in the README backlog or a
-memory file, not the transition.
+in your head. Limit 3-5 — more belongs in the project's `AGENTS.md` or a
+`.workspace/memory/` file, not the transition.
 
 **Files touched**: file-level granularity (not line-level), grouped
 by repo + commit. Uncommitted under a separate group.

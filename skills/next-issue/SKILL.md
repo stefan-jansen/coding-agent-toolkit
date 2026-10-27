@@ -47,15 +47,40 @@ If `--milestone` is not given, resolve it like this:
 
 ## What "next issue" means
 
-Lowest-numbered open issue in the chosen milestone:
+Lowest-numbered open issue in the chosen milestone that the milestone branch
+has not already shipped:
 
 ```bash
 gh issue list --repo <owner>/<repo> --milestone "<title>" --state open \
-  --json number,title,body,labels --jq 'sort_by(.number)|.[0]'
+  --json number,title,body,labels --jq 'sort_by(.number)'
 ```
 
+An issue stays open until the milestone's PR merges (see the `Closes #N` caveat
+below), so after the first `next-issue` run the lowest open issue may already be
+committed on the branch. Once the branch is resolved (see "Branch resolution"),
+skip every candidate whose closing footer is in the branch's commits:
+
+```bash
+git log --format=%B "<default>..<branch>" | grep -qE '^Closes #<N>\.?$'   # match: already shipped
+```
+
+If every open issue is already on the branch, say so and point at `/ship`.
+
 If `--issue <N>` is passed, fetch that specific one and verify it is still open
-and in the chosen milestone. If not, abort with the reason.
+and in the chosen milestone. If not, abort with the reason. If it is already
+shipped on the branch, say so and ask before implementing it again.
+
+## GitHub remote
+
+Do not assume `origin` is the GitHub repository. It can be a fork, with the
+target repository under `upstream`, or a local mirror with GitHub under another
+name. Resolve the remote whose URL is `<owner>/<repo>` once, and name it in
+every fetch and push below:
+
+```bash
+GH_REMOTE=$(git remote -v | awk -v r="<owner>/<repo>" '$2 ~ ("github\\.com[:/]" r "(\\.git)?$") {print $1; exit}')
+[ -n "$GH_REMOTE" ] || { echo "no remote points at github.com/<owner>/<repo>" >&2; exit 1; }
+```
 
 ## Branch resolution (idempotent)
 
@@ -66,7 +91,7 @@ So the branch is the same across all `next-issue` runs within a milestone.
    `dogfood/dividend-modeling`. Search:
    `gh pr list --repo <owner>/<repo> --state open --json number,headRefName,milestone --jq '.[] | select(.milestone.title == "<title>")'`
 2. If found and the local branch matches, **stay on it**. If found and the
-   local branch differs, `git fetch origin <head>` then `git switch <head>`.
+   local branch differs, `git fetch "$GH_REMOTE" <head>` then `git switch <head>`.
 3. If no PR yet, derive the branch name:
    - If the user passed `--branch`, use it.
    - Else `feat/<milestone-slug>` where the slug is the milestone title
@@ -89,8 +114,7 @@ tells you**. The skill's job is to set the boundaries.
 2. **Honor fail-loud-means-fail-atomic.** If your implementation has an error
    path that raises, no prior step in the same logical operation should be
    half-applied. Prefer a validation pre-pass before any state mutation.
-   (This rule emerged from the 2026-06-15 host-swap probe — see the toolkit
-   backlog #9.)
+   (This rule emerged from the 2026-06-15 host-swap probe.)
 3. **Run tests before committing.** Use the project's test runner. If the
    suite has a fast subset, run that during iteration and the full suite
    once before commit. If anything fails, fix or abort — never commit red.
@@ -159,8 +183,8 @@ issue with `gh issue close` — that breaks the merge-time trace.
 ## Push + PR
 
 ```bash
-git push -u origin <branch>     # first push
-git push                        # subsequent pushes (PR auto-updates)
+git push -u "$GH_REMOTE" <branch>   # first push
+git push                            # subsequent pushes (PR auto-updates)
 ```
 
 If no PR exists yet for this branch, open one as **draft** targeting the
@@ -244,7 +268,12 @@ Do not run tests or touch files in dry-run.
 
 At the end (non-dry-run), write a short record to a new transition file at
 `.workspace/transitions/$(date +%Y-%m-%d)/$(date +%H%M%S).md` (one file per
-event, the convention the transition plugin and `/handoff` use):
+event, the convention the transition plugin and `/handoff` use). Create the
+date directory first; it does not exist on the first write of a day:
+
+```bash
+mkdir -p ".workspace/transitions/$(date +%Y-%m-%d)"
+```
 
 ```markdown
 ## HH:MM - next-issue #<N> shipped
@@ -258,5 +287,6 @@ event, the convention the transition plugin and `/handoff` use):
 ```
 
 Then tell the user: which issue shipped, what's next (the next open issue, or
-`/ship` if the milestone is empty), and any frictions worth backlog entries
-in `~/agents/coding/coding-agent-toolkit/README.md`.
+`/ship` if the milestone is empty), and any frictions in the step itself,
+listed as candidate issues for the toolkit at
+https://github.com/stefan-jansen/coding-agent-toolkit/issues.

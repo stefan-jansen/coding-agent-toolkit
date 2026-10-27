@@ -190,4 +190,5 @@ continuity.
 
 ## Backlog (open)
 
-See [README § Roadmap](../README.md#roadmap). Currently #5, #6, #12.
+Tracked as GitHub issues: https://github.com/stefan-jansen/coding-agent-toolkit/issues.
+The workflow steps send frictions there as candidate issues.
